@@ -28,11 +28,7 @@ using namespace std;
 
 NS_LOG_COMPONENT_DEFINE ("The_net");
 
-// Rimuoviamo tutte le ridefinizioni di costanti, enum e strutture
-// che sono già definite in chord-header.h
-
-int
-main (int argc, char *argv[])
+int main (int argc, char *argv[])
 { 
   uint32_t numnodes = 100, seed = 100, run = 1000;
   CommandLine cmd;
@@ -70,7 +66,6 @@ main (int argc, char *argv[])
   { 
     netdev = p2p.Install(nodes.Get(i), nodes.Get((i+1)%k));
     adr = ipv4.NewNetwork();
-    // cout << i <<" - " << (i+1)%k << "\t" << adr << endl;
     ipv4.Assign (netdev);
   }    
   
@@ -83,13 +78,11 @@ main (int argc, char *argv[])
     while (numlinks < minlinks)
     { 
       uint32_t j = r->GetInteger((i-10)/3*2, i-1);
-      // cout << "r= " << j << " imin= " << (i-10)/3*2 << " i max = " << i-1 << endl;
       if ((j == i) || link[j])
         continue;
       link[j] = true;
       netdev = p2p.Install(nodes.Get(i), nodes.Get(j));
       adr = ipv4.NewNetwork();
-      // cout << i << " - " << j <<"\t" << adr <<" \n";
       ipv4.Assign (netdev); 
       ++numlinks;
     }    
