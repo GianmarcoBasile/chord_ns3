@@ -1,0 +1,9 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+
+Rispondi sempre in italiano
+
+Quello che voglio fare è implementare una versione semplificata del protocollo p2p CHORD in ns3. In particolare vorrei fare in modo di implementare una overlay network CHORD che gestisca solo i peer come nodi e che ogni nodo gestisca una lista di risorse secondo le specifiche del protocollo.
