@@ -25,6 +25,16 @@ public:
   void LookupKey(uint32_t key);
   void PrintStats();
 
+  // Metodo per ottenere il chordId del nodo
+  uint32_t GetChordId() const { return m_chordId; }
+
+  // Nuovi metodi per la gestione dei file
+  void AddFile(uint32_t fileId);
+  bool HasFile(uint32_t fileId);
+  void StoreFile(uint32_t fileId);
+  void GetFile(uint32_t fileId);
+  vector<uint32_t> GetStoredFiles();
+
 private:
   virtual void StartApplication(void);
   virtual void StopApplication(void);
@@ -34,6 +44,16 @@ private:
   void SendLookupResponse(uint32_t key, uint32_t targetId, uint32_t responseNodeId);
   void HandleLookupResponse(ChordMessage msg);
   void HandleRead(Ptr<Socket> socket);
+
+  // Nuovi metodi privati per la gestione dei messaggi di file
+  void SendStoreFileRequest(uint32_t fileId, uint32_t targetNodeIdx);
+  void HandleStoreFileRequest(ChordMessage msg);
+  void SendStoreFileResponse(uint32_t fileId, uint32_t targetId, bool success);
+  void HandleStoreFileResponse(ChordMessage msg);
+  void SendGetFileRequest(uint32_t fileId, uint32_t targetNodeIdx);
+  void HandleGetFileRequest(ChordMessage msg);
+  void SendGetFileResponse(uint32_t fileId, uint32_t targetId, bool hasFile);
+  void HandleGetFileResponse(ChordMessage msg);
 
   Ptr<Socket> m_socket;
   uint32_t m_chordId;

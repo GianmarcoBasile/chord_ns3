@@ -1,7 +1,7 @@
 #ifndef CHORD_HELPER_H
 #define CHORD_HELPER_H
 
-#include "chord-header.h"
+#include "ns3/node-container.h"
 #include "chord-application.h"
 
 using namespace ns3;
@@ -13,4 +13,10 @@ void SetupChordNetwork(NodeContainer &nodes, vector<Ptr<ChordApplication>>& chor
 // Funzione per pianificare operazioni di lookup casuali
 void ScheduleRandomLookups(vector<Ptr<ChordApplication>>& chordApps, int numLookups);
 
-#endif // CHORD_HELPER_H 
+// Funzione per pianificare operazioni di memorizzazione e ricerca di file
+void ScheduleFileOperations(vector<Ptr<ChordApplication>>& chordApps, int numFiles);
+
+// Dichiarazione della funzione findSuccessor
+uint32_t findSuccessor(uint32_t id, const std::vector<ChordInfo>& chordNodes);
+
+#endif // CHORD_HELPER_H

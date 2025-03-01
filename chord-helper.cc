@@ -148,4 +148,48 @@ void ScheduleRandomLookups(vector<Ptr<ChordApplication>>& chordApps, int numLook
     cout << "Pianificato lookup #" << (i+1) << " per chiave " << randomKey 
          << " dal nodo " << chordApps[startNodeIdx]->GetNode()->GetId() << endl;
   }
+}
+
+// Funzione per pianificare operazioni di memorizzazione e ricerca di file
+void ScheduleFileOperations(vector<Ptr<ChordApplication>>& chordApps, int numFiles) {
+  Ptr<UniformRandomVariable> r = CreateObject<UniformRandomVariable>();
+  
+  // Generiamo numFiles file casuali e li memorizziamo nella rete
+  for (int i = 0; i < numFiles; i++) {
+    uint32_t fileId = r->GetInteger(0, CHORD_SIZE - 1);
+    uint32_t startNodeIdx = r->GetInteger(0, chordApps.size() - 1);
+    
+    // Pianifichiamo la memorizzazione del file dopo 20 secondi + 1 secondo per ogni file
+    Simulator::Schedule(Seconds(20.0 + i * 1.0), &ChordApplication::StoreFile, 
+                        chordApps[startNodeIdx], fileId);
+    
+    cout << "Pianificata memorizzazione del file #" << (i+1) << " con ID " << fileId 
+         << " dal nodo chordId: " << chordApps[startNodeIdx]->GetChordId() << endl;
+    
+    // Pianifichiamo anche una ricerca dello stesso file da un altro nodo dopo 5 secondi
+    uint32_t searchNodeIdx;
+    do {
+      searchNodeIdx = r->GetInteger(0, chordApps.size() - 1);
+    } while (searchNodeIdx == startNodeIdx);
+    
+    Simulator::Schedule(Seconds(25.0 + i * 1.0), &ChordApplication::GetFile, 
+                        chordApps[searchNodeIdx], fileId);
+    
+    cout << "Pianificata ricerca del file #" << (i+1) << " con ID " << fileId 
+         << " dal nodo chordId: " << chordApps[searchNodeIdx]->GetChordId() << endl;
+  }
+  
+  // Pianifichiamo la stampa dei file memorizzati da ogni nodo alla fine
+  Simulator::Schedule(Seconds(30.0 + numFiles * 1.0), [&chordApps]() {
+    cout << "\n=== ELENCO DEI FILE MEMORIZZATI DA OGNI NODO ===" << endl;
+    for (uint32_t i = 0; i < chordApps.size(); i++) {
+      vector<uint32_t> files = chordApps[i]->GetStoredFiles();
+      cout << "Nodo chordId: " << chordApps[i]->GetChordId() << " memorizza " 
+           << files.size() << " file:" << endl;
+      for (uint32_t j = 0; j < files.size(); j++) {
+        cout << "  - File ID: " << files[j] << endl;
+      }
+    }
+    cout << "==================================================\n" << endl;
+  });
 } 

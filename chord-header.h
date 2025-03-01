@@ -20,7 +20,11 @@ const uint16_t CHORD_PORT = 8000;  // Porta per le comunicazioni Chord
 // Tipi di messaggi Chord
 enum ChordMessageType {
   LOOKUP_REQUEST = 1,
-  LOOKUP_RESPONSE = 2
+  LOOKUP_RESPONSE = 2,
+  STORE_FILE_REQUEST = 3,
+  STORE_FILE_RESPONSE = 4,
+  GET_FILE_REQUEST = 5,
+  GET_FILE_RESPONSE = 6
 };
 
 // Struttura per i messaggi Chord
@@ -39,6 +43,7 @@ struct ChordInfo {
   Ptr<Node> node;
   vector<uint32_t> fingerTable;  // Indici dei nodi nella finger table
   uint32_t predecessor;          // Indice del predecessore
+  vector<uint32_t> fileIds;      // Lista degli ID dei file memorizzati dal nodo
 };
 
 // Funzione per verificare se id è nell'intervallo (start, end) nel ring Chord
@@ -53,4 +58,4 @@ inline bool isInRange(uint32_t id, uint32_t start, uint32_t end) {
 // Funzione per trovare il successore di un ID nella rete Chord
 uint32_t findSuccessor(uint32_t id, const vector<ChordInfo>& chordNodes);
 
-#endif // CHORD_HEADER_H 
+#endif // CHORD_HEADER_H

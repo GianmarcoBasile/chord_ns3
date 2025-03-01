@@ -119,11 +119,14 @@ int main (int argc, char *argv[])
   // Pianifichiamo alcune operazioni di lookup casuali
   ScheduleRandomLookups(chordApps, 5);
   
+  // Pianifichiamo operazioni di memorizzazione e ricerca di file
+  ScheduleFileOperations(chordApps, 10);
+  
   // Aggiungiamo un callback per stampare le statistiche complessive alla fine della simulazione
   Simulator::Schedule(Seconds(95.0), []() {
     cout << "\n\n=== STATISTICHE COMPLESSIVE DEL TRAFFICO CHORD ===" << endl;
     cout << "La simulazione ha generato traffico di rete reale per le operazioni Chord." << endl;
-    cout << "Ogni lookup ha generato pacchetti UDP che sono stati inviati attraverso la rete simulata." << endl;
+    cout << "Ogni lookup e operazione sui file ha generato pacchetti UDP che sono stati inviati attraverso la rete simulata." << endl;
     cout << "Le statistiche dettagliate per nodo sono state stampate sopra." << endl;
     cout << "======================================================\n" << endl;
   });
