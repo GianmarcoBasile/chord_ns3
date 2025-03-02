@@ -2,7 +2,7 @@ Metric,Value
 TotalLookups,100
 SuccessfulLookups,50
 SuccessRate,50.00
-TotalTimeMs,2230.00
-AverageTimeMs,22.30
-MinTimeMs,0.00
-MaxTimeMs,110.00
+TotalTimeMs,152230.00
+AverageTimeMs,1522.30
+MinTimeMs,20.00
+MaxTimeMs,3000.00
