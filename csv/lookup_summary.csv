@@ -1,8 +1,8 @@
 Metric,Value
 TotalLookups,100
-SuccessfulLookups,0
-SuccessRate,0.00
-TotalTimeMs,0.00
-AverageTimeMs,0.00
+SuccessfulLookups,50
+SuccessRate,50.00
+TotalTimeMs,2230.00
+AverageTimeMs,22.30
 MinTimeMs,0.00
-MaxTimeMs,0.00
+MaxTimeMs,110.00

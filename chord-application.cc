@@ -296,7 +296,14 @@ ChordApplication::StoreFile(uint32_t fileId) {
   // Caso base: un solo nodo
   if (m_chordNodes.size() == 1) {
     AddFile(fileId);
+    cout << "DEBUG: File " << fileId << " memorizzato nel nodo " << m_chordId << " (unico nodo nella rete)" << endl;
     return;
+  }
+  
+  // IMPORTANTE DEBUG: Stampiamo tutti i nodi della rete
+  cout << "DEBUG RETE: Lista di tutti i nodi disponibili:" << endl;
+  for (uint32_t i = 0; i < m_chordNodes.size(); i++) {
+    cout << "  Nodo[" << i << "]: chordId=" << m_chordNodes[i].chordId << endl;
   }
   
   // Cerchiamo il primo nodo con ID >= fileId
@@ -307,6 +314,7 @@ ChordApplication::StoreFile(uint32_t fileId) {
     if (m_chordNodes[i].chordId >= fileId) {
       successorIdx = i;
       found = true;
+      cout << "DEBUG: Trovato nodo " << m_chordNodes[i].chordId << " con ID >= fileId " << fileId << endl;
       break;
     }
   }
@@ -324,13 +332,16 @@ ChordApplication::StoreFile(uint32_t fileId) {
     }
     
     successorIdx = minIdx;
+    cout << "DEBUG: Nessun nodo con ID >= fileId " << fileId << ", utilizzo wrap-around al nodo con ID minimo " << m_chordNodes[successorIdx].chordId << endl;
   }
   
   // Se siamo noi il successore, memorizziamo il file localmente
   if (m_chordNodes[successorIdx].chordId == m_chordId) {
     AddFile(fileId);
+    cout << "DEBUG: File " << fileId << " memorizzato localmente nel nodo " << m_chordId << endl;
   } else {
     // Altrimenti, inviamo la richiesta al successore
+    cout << "DEBUG: Invio richiesta al successore " << m_chordNodes[successorIdx].chordId << " per memorizzare il file " << fileId << endl;
     SendStoreFileRequest(fileId, successorIdx);
   }
 }
@@ -385,6 +396,7 @@ ChordApplication::HandleStoreFileRequest(ChordMessage msg) {
   // Caso base: un solo nodo
   if (m_chordNodes.size() == 1) {
     AddFile(fileId);
+    cout << "DEBUG: HandleStoreFileRequest - Unico nodo nella rete, file " << fileId << " memorizzato" << endl;
     SendStoreFileResponse(fileId, msg.sourceId, true);
     return;
   }
@@ -397,6 +409,7 @@ ChordApplication::HandleStoreFileRequest(ChordMessage msg) {
     if (m_chordNodes[i].chordId >= fileId) {
       successorIdx = i;
       found = true;
+      cout << "DEBUG: HandleStoreFileRequest - Trovato nodo " << m_chordNodes[i].chordId << " con ID >= fileId " << fileId << endl;
       break;
     }
   }
@@ -414,14 +427,19 @@ ChordApplication::HandleStoreFileRequest(ChordMessage msg) {
     }
     
     successorIdx = minIdx;
+    cout << "DEBUG: HandleStoreFileRequest - Nessun nodo con ID >= fileId " << fileId 
+         << ", utilizzo wrap-around al nodo con ID minimo " << m_chordNodes[successorIdx].chordId << endl;
   }
   
   // Se siamo noi il successore, memorizziamo il file localmente
   if (m_chordNodes[successorIdx].chordId == m_chordId) {
     AddFile(fileId);
+    cout << "DEBUG: HandleStoreFileRequest - Siamo noi il successore, file " << fileId << " memorizzato localmente" << endl;
     SendStoreFileResponse(fileId, msg.sourceId, true);
   } else {
     // Altrimenti, inoltriamo la richiesta al successore
+    cout << "DEBUG: HandleStoreFileRequest - Inoltro la richiesta al successore " << m_chordNodes[successorIdx].chordId 
+         << " per memorizzare il file " << fileId << endl;
     SendStoreFileRequest(fileId, successorIdx);
   }
 }
@@ -490,6 +508,12 @@ ChordApplication::GetFile(uint32_t fileId) {
   // Registriamo l'inizio della ricerca
   m_pendingFileLookups[fileId] = false;
   
+  // IMPORTANTE DEBUG: Stampiamo tutti i file memorizzati in questo nodo
+  cout << "DEBUG FILES: File memorizzati nel nodo " << m_chordId << ":" << endl;
+  for (uint32_t i = 0; i < m_chordNodes[m_myIndex].fileIds.size(); i++) {
+    cout << "  File[" << i << "]: ID=" << m_chordNodes[m_myIndex].fileIds[i] << endl;
+  }
+  
   // Se il file è disponibile localmente, completiamo subito
   if (HasFile(fileId)) {
     cout << "File ID " << fileId << " trovato localmente nel nodo chordId: " << m_chordId << endl;
@@ -499,30 +523,55 @@ ChordApplication::GetFile(uint32_t fileId) {
     return;
   }
   
-  uint32_t currentIdx = m_myIndex;
-  
-  // Se il fileId è tra il nodo corrente e il suo successore, il successore è responsabile
-  uint32_t successorIdx = m_chordNodes[currentIdx].fingerTable[0];
-  if (isInRange(fileId, m_chordNodes[currentIdx].chordId, m_chordNodes[successorIdx].chordId)) {
-    // Questo nodo dovrebbe avere il file, ma non ce l'ha
-    // Proviamo a inoltrare la richiesta al successore, forse lui ha il file
-    cout << "Nodo chordId: " << m_chordId << " non ha trovato il file " << fileId 
-         << " che dovrebbe essere in questo intervallo. Inoltra al successore." << endl;
-    SendGetFileRequest(fileId, successorIdx);
+  // IMPLEMENTAZIONE ALTERNATIVA: Cerchiamo direttamente il successore come in StoreFile
+  // Caso base: un solo nodo
+  if (m_chordNodes.size() == 1) {
+    // Se siamo l'unico nodo e non abbiamo il file, allora non esiste
+    cout << "DEBUG: Siamo l'unico nodo nella rete e non abbiamo il file " << fileId << endl;
+    m_pendingFileLookups[fileId] = false;
+    m_fileLookupCompletedCallback(fileId, false);
     return;
   }
   
-  // Altrimenti, cerchiamo nella finger table il nodo più vicino ma che non superi la chiave
-  for (int i = FINGER_TABLE_SIZE - 1; i >= 0; i--) {
-    uint32_t fingerIdx = m_chordNodes[currentIdx].fingerTable[i];
-    if (isInRange(m_chordNodes[fingerIdx].chordId, m_chordNodes[currentIdx].chordId, fileId)) {
-      SendGetFileRequest(fileId, fingerIdx);
-      return;
+  // Cerchiamo il primo nodo con ID >= fileId
+  uint32_t successorIdx = m_myIndex; // Default a noi stessi
+  bool found = false;
+  
+  for (uint32_t i = 0; i < m_chordNodes.size(); i++) {
+    if (m_chordNodes[i].chordId >= fileId) {
+      successorIdx = i;
+      found = true;
+      cout << "DEBUG: GetFile - Trovato nodo " << m_chordNodes[i].chordId << " con ID >= fileId " << fileId << endl;
+      break;
     }
   }
   
-  // Se non troviamo un nodo migliore nella finger table, passiamo al successore
-  SendGetFileRequest(fileId, successorIdx);
+  // Se non troviamo un nodo con ID >= fileId, il successore è il nodo con ID minimo (wrap-around)
+  if (!found) {
+    uint32_t minIdx = 0;
+    uint32_t minId = m_chordNodes[0].chordId;
+    
+    for (uint32_t i = 1; i < m_chordNodes.size(); i++) {
+      if (m_chordNodes[i].chordId < minId) {
+        minIdx = i;
+        minId = m_chordNodes[i].chordId;
+      }
+    }
+    
+    successorIdx = minIdx;
+    cout << "DEBUG: GetFile - Nessun nodo con ID >= fileId " << fileId << ", utilizzo wrap-around al nodo con ID minimo " << m_chordNodes[successorIdx].chordId << endl;
+  }
+  
+  // Se siamo noi il successore, abbiamo già controllato che non abbiamo il file
+  if (m_chordNodes[successorIdx].chordId == m_chordId) {
+    cout << "DEBUG: GetFile - Siamo noi il successore per il file " << fileId << " ma non lo abbiamo trovato" << endl;
+    m_pendingFileLookups[fileId] = false;
+    m_fileLookupCompletedCallback(fileId, false);
+  } else {
+    // Altrimenti, inviamo la richiesta al successore
+    cout << "DEBUG: GetFile - Invio richiesta al successore " << m_chordNodes[successorIdx].chordId << " per cercare il file " << fileId << endl;
+    SendGetFileRequest(fileId, successorIdx);
+  }
 }
 
 // Metodo per inviare una richiesta di ricerca file
@@ -569,7 +618,6 @@ ChordApplication::HandleGetFileRequest(ChordMessage msg) {
   
   uint32_t fileId = msg.key;
   uint32_t sourceId = msg.sourceId;
-  uint32_t currentIdx = m_myIndex;
   
   // Verifichiamo se abbiamo il file
   if (HasFile(fileId)) {
@@ -579,37 +627,54 @@ ChordApplication::HandleGetFileRequest(ChordMessage msg) {
     return;
   }
   
-  // Se il fileId è tra il nodo corrente e il suo successore, il successore è responsabile
-  uint32_t successorIdx = m_chordNodes[currentIdx].fingerTable[0];
-  if (isInRange(fileId, m_chordNodes[currentIdx].chordId, m_chordNodes[successorIdx].chordId)) {
-    // Questo nodo dovrebbe avere il file, ma non ce l'ha
-    // Proviamo a inoltrare la richiesta al successore
-    cout << "Nodo chordId: " << m_chordId << " non ha trovato il file " << fileId 
-         << " che dovrebbe essere in questo intervallo. Inoltra al successore." << endl;
-    SendGetFileRequest(fileId, successorIdx);
+  // NUOVA IMPLEMENTAZIONE: Cerchiamo direttamente il successore come in StoreFile
+  // Caso base: un solo nodo
+  if (m_chordNodes.size() == 1) {
+    // Se siamo l'unico nodo e non abbiamo il file, allora non esiste
+    cout << "DEBUG: HandleGetFileRequest - Siamo l'unico nodo nella rete e non abbiamo il file " << fileId << endl;
+    SendGetFileResponse(fileId, sourceId, false);
     return;
   }
   
-  // Altrimenti, cerchiamo nella finger table il nodo più vicino ma che non superi il fileId
+  // Cerchiamo il primo nodo con ID >= fileId
+  uint32_t successorIdx = m_myIndex; // Default a noi stessi
   bool found = false;
-  for (int i = FINGER_TABLE_SIZE - 1; i >= 0; i--) {
-    uint32_t fingerIdx = m_chordNodes[currentIdx].fingerTable[i];
-    if (isInRange(m_chordNodes[fingerIdx].chordId, m_chordNodes[currentIdx].chordId, fileId)) {
-      // Inoltriamo la richiesta al nodo più vicino
-      cout << "Nodo chordId: " << m_chordId 
-           << " inoltra la richiesta per il file " << fileId 
-           << " al finger " << i << " (chordId: " << m_chordNodes[fingerIdx].chordId << ")" << endl;
-      SendGetFileRequest(fileId, fingerIdx);
+  
+  for (uint32_t i = 0; i < m_chordNodes.size(); i++) {
+    if (m_chordNodes[i].chordId >= fileId) {
+      successorIdx = i;
       found = true;
+      cout << "DEBUG: HandleGetFileRequest - Trovato nodo " << m_chordNodes[i].chordId << " con ID >= fileId " << fileId << endl;
       break;
     }
   }
   
-  // Se non troviamo un nodo migliore nella finger table, passiamo al successore
+  // Se non troviamo un nodo con ID >= fileId, il successore è il nodo con ID minimo (wrap-around)
   if (!found) {
-    cout << "Nodo chordId: " << m_chordId 
-         << " inoltra la richiesta per il file " << fileId 
-         << " al successore (chordId: " << m_chordNodes[successorIdx].chordId << ")" << endl;
+    uint32_t minIdx = 0;
+    uint32_t minId = m_chordNodes[0].chordId;
+    
+    for (uint32_t i = 1; i < m_chordNodes.size(); i++) {
+      if (m_chordNodes[i].chordId < minId) {
+        minIdx = i;
+        minId = m_chordNodes[i].chordId;
+      }
+    }
+    
+    successorIdx = minIdx;
+    cout << "DEBUG: HandleGetFileRequest - Nessun nodo con ID >= fileId " << fileId 
+         << ", utilizzo wrap-around al nodo con ID minimo " << m_chordNodes[successorIdx].chordId << endl;
+  }
+  
+  // Se siamo noi il successore, abbiamo già controllato che non abbiamo il file
+  if (m_chordNodes[successorIdx].chordId == m_chordId) {
+    cout << "DEBUG: HandleGetFileRequest - Siamo noi il successore per il file " << fileId 
+         << " ma non lo abbiamo trovato. Rispondiamo con file non trovato." << endl;
+    SendGetFileResponse(fileId, sourceId, false);
+  } else {
+    // Altrimenti, inviamo la richiesta al successore
+    cout << "DEBUG: HandleGetFileRequest - Invio richiesta al successore " << m_chordNodes[successorIdx].chordId 
+         << " per cercare il file " << fileId << endl;
     SendGetFileRequest(fileId, successorIdx);
   }
 }
@@ -639,7 +704,13 @@ ChordApplication::SendGetFileResponse(uint32_t fileId, uint32_t targetId, bool h
   if (hasFile) {
     cout << "DEBUG: Nodo chordId: " << m_chordId 
          << " sta rispondendo POSITIVAMENTE alla ricerca del file " << fileId 
-         << " dal nodo chordId: " << targetId << endl;
+         << " dal nodo chordId: " << targetId 
+         << ", imposta responseNodeId=" << msg.responseNodeId << endl;
+  } else {
+    cout << "DEBUG: Nodo chordId: " << m_chordId 
+         << " sta rispondendo NEGATIVAMENTE alla ricerca del file " << fileId 
+         << " dal nodo chordId: " << targetId 
+         << ", imposta responseNodeId=" << msg.responseNodeId << endl;
   }
 
   // Serializziamo il messaggio
