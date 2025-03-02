@@ -15,7 +15,13 @@ using namespace ns3;
 using namespace std;
 
 // Definizione del tipo di callback per le ricerche di file completate
-typedef function<void(uint32_t, bool)> FileLookupCompletedCallback;
+typedef function<void(uint32_t, bool, uint32_t)> FileLookupCompletedCallback;
+
+// Struttura per memorizzare i dati dei file
+struct FileData {
+  uint32_t fileId;
+  uint32_t fileSize;
+};
 
 // Classe per l'applicazione Chord
 class ChordApplication : public Application {
@@ -35,9 +41,20 @@ public:
   // Nuovi metodi per la gestione dei file
   void AddFile(uint32_t fileId);
   bool HasFile(uint32_t fileId);
-  void StoreFile(uint32_t fileId);
-  void GetFile(uint32_t fileId);
+  void StoreFile(uint32_t fileId, uint32_t fileSize, uint32_t hopCount);
+  void GetFile(uint32_t fileId, uint32_t hopCount);
   vector<uint32_t> GetStoredFiles();
+  
+  // Metodi per iniziare operazioni di archiviazione e ricerca
+  void InitiateStoreFile(uint32_t fileId, uint32_t fileSize);
+  void InitiateGetFile(uint32_t fileId);
+  
+  // Metodo per verificare se il nodo è responsabile per una chiave
+  bool IsResponsibleForKey(uint32_t key);
+  
+  // Metodi per trovare il nodo precedente più lontano
+  uint32_t FindFarthestPrecedingNode(uint32_t key);
+  uint32_t FindFarthestPrecedingNodeAlt(uint32_t key);
   
   // Metodo per registrare il callback per il completamento della ricerca di file
   void SetFileLookupCompletedCallback(FileLookupCompletedCallback callback);
@@ -62,15 +79,21 @@ private:
   void HandleRead(Ptr<Socket> socket);
 
   // Nuovi metodi privati per la gestione dei messaggi di file
-  void SendStoreFileRequest(uint32_t fileId, uint32_t targetNodeIdx);
-  void HandleStoreFileRequest(ChordMessage msg);
+  void SendStoreFileRequest(uint32_t fileId, uint32_t fileSize, uint32_t targetIdx);
+  void HandleStoreFileRequest(ChordMessage message, Address sourceAddress);
   void SendStoreFileResponse(uint32_t fileId, uint32_t targetId, bool success);
   void HandleStoreFileResponse(ChordMessage msg);
   void SendGetFileRequest(uint32_t fileId, uint32_t targetNodeIdx);
-  void HandleGetFileRequest(ChordMessage msg);
-  void SendGetFileResponse(uint32_t fileId, uint32_t targetId, bool hasFile);
-  void SendForwardingResponse(uint32_t fileId, uint32_t targetId, uint32_t forwardedToNodeId);
+  void SendGetFileRequestWithHopCount(uint32_t fileId, uint32_t targetIdx, uint32_t hopCount);
+  void HandleGetFileRequest(ChordMessage message, Address sourceAddress);
+  void SendGetFileResponse(uint32_t fileId, uint32_t targetIdx, bool hasFile, uint32_t hopCount);
+  void SendForwardingResponse(uint32_t fileId, uint32_t targetId, uint32_t forwardedToNodeId, uint32_t hopCount);
+  void SendForwardingRequest(uint32_t fileId, uint32_t targetIdx, uint32_t originalSourceId, uint32_t hopCount);
   void HandleGetFileResponse(ChordMessage msg);
+  void HandleForwardingResponse(ChordMessage msg);
+  
+  // Metodo per creare un messaggio di archiviazione file
+  ChordMessage CreateStoreFileMessage(uint32_t fileId, uint32_t fileSize, uint32_t hopCount);
 
   Ptr<Socket> m_socket;
   uint32_t m_chordId;
@@ -79,6 +102,12 @@ private:
   bool m_running;
   uint32_t m_packetsSent;
   uint32_t m_packetsReceived;
+  
+  // Membri per la gestione dei file
+  vector<FileData> m_storedFiles;
+  uint32_t m_totalFilesStored;
+  uint32_t m_totalBytesStored;
+  uint16_t m_applicationPort;
   
   // Nuovi membri per tenere traccia delle ricerche di file
   map<uint32_t, bool> m_pendingFileLookups;  // Mappa degli ID file in attesa di risposta

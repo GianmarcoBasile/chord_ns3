@@ -161,7 +161,7 @@ void ScheduleFileOperations(vector<Ptr<ChordApplication>>& chordApps, int numFil
     
     // Pianifichiamo la memorizzazione del file dopo 20 secondi + 1 secondo per ogni file
     Simulator::Schedule(Seconds(20.0 + i * 1.0), &ChordApplication::StoreFile, 
-                        chordApps[startNodeIdx], fileId);
+                        chordApps[startNodeIdx], fileId, 1024, 0);
     
     cout << "Pianificata memorizzazione del file #" << (i+1) << " con ID " << fileId 
          << " dal nodo chordId: " << chordApps[startNodeIdx]->GetChordId() << endl;
@@ -173,7 +173,7 @@ void ScheduleFileOperations(vector<Ptr<ChordApplication>>& chordApps, int numFil
     } while (searchNodeIdx == startNodeIdx);
     
     Simulator::Schedule(Seconds(25.0 + i * 1.0), &ChordApplication::GetFile, 
-                        chordApps[searchNodeIdx], fileId);
+                        chordApps[searchNodeIdx], fileId, 0);
     
     cout << "Pianificata ricerca del file #" << (i+1) << " con ID " << fileId 
          << " dal nodo chordId: " << chordApps[searchNodeIdx]->GetChordId() << endl;

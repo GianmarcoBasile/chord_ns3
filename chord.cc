@@ -38,6 +38,7 @@ struct LookupStats {
   Time startTime;
   Time endTime;
   bool completed;
+  uint32_t hopCount;  // Numero di hop necessari per completare la ricerca
 };
 
 // Mappa globale per tenere traccia dei tempi di ricerca
@@ -58,10 +59,11 @@ void EnsureDirectoryExists(const string& dirPath) {
 }
 
 // Callback da chiamare quando una ricerca di file è completata
-void FileLookupCompleted(uint32_t fileId, bool found) {
+void FileLookupCompleted(uint32_t fileId, bool found, uint32_t hopCount) {
   if (g_lookupStats.find(fileId) != g_lookupStats.end()) {
     g_lookupStats[fileId].endTime = Simulator::Now();
     g_lookupStats[fileId].completed = found;
+    g_lookupStats[fileId].hopCount = hopCount;
     
     // Calcola il tempo trascorso in millisecondi
     double elapsedTimeMs = (g_lookupStats[fileId].endTime - g_lookupStats[fileId].startTime).GetMilliSeconds();
@@ -70,9 +72,9 @@ void FileLookupCompleted(uint32_t fileId, bool found) {
          << fixed << setprecision(2) << elapsedTimeMs << " ms. ";
     
     if (found) {
-      cout << "File trovato!" << endl;
+      cout << "File trovato! Hop: " << hopCount << endl;
     } else {
-      cout << "File non trovato." << endl;
+      cout << "File non trovato. Hop: " << hopCount << endl;
     }
   }
 }
@@ -94,14 +96,15 @@ void SaveLookupStatsToCsv() {
   }
   
   // Intestazione del file CSV
-  csvFile << "FileID,ElapsedTimeMs,Found\n";
+  csvFile << "FileID,ElapsedTimeMs,Found,HopCount\n";
   
   // Scrivi i dati di ogni ricerca
   for (const auto& entry : g_lookupStats) {
     double elapsedTimeMs = (entry.second.endTime - entry.second.startTime).GetMilliSeconds();
     csvFile << entry.first << "," 
             << fixed << setprecision(2) << elapsedTimeMs << "," 
-            << (entry.second.completed ? "true" : "false") << "\n";
+            << (entry.second.completed ? "true" : "false") << "," 
+            << entry.second.hopCount << "\n";
   }
   
   csvFile.close();
@@ -121,17 +124,26 @@ void SaveLookupStatsToCsv() {
   double minTime = numeric_limits<double>::max();
   double maxTime = 0.0;
   int successCount = 0;
+  uint32_t totalHops = 0;
+  uint32_t minHops = numeric_limits<uint32_t>::max();
+  uint32_t maxHops = 0;
   
   for (const auto& entry : g_lookupStats) {
     double elapsedTimeMs = (entry.second.endTime - entry.second.startTime).GetMilliSeconds();
     totalTime += elapsedTimeMs;
     minTime = min(minTime, elapsedTimeMs);
     maxTime = max(maxTime, elapsedTimeMs);
+    
+    totalHops += entry.second.hopCount;
+    minHops = min(minHops, entry.second.hopCount);
+    maxHops = max(maxHops, entry.second.hopCount);
+    
     if (entry.second.completed) successCount++;
   }
   
   double avgTime = totalTime / g_lookupStats.size();
   double successRate = (double)successCount / g_lookupStats.size() * 100.0;
+  double avgHops = (double)totalHops / g_lookupStats.size();
   
   // Intestazione del file di riepilogo
   summaryFile << "Metric,Value\n";
@@ -142,6 +154,10 @@ void SaveLookupStatsToCsv() {
   summaryFile << "AverageTimeMs," << fixed << setprecision(2) << avgTime << "\n";
   summaryFile << "MinTimeMs," << fixed << setprecision(2) << minTime << "\n";
   summaryFile << "MaxTimeMs," << fixed << setprecision(2) << maxTime << "\n";
+  summaryFile << "TotalHops," << totalHops << "\n";
+  summaryFile << "AverageHops," << fixed << setprecision(2) << avgHops << "\n";
+  summaryFile << "MinHops," << minHops << "\n";
+  summaryFile << "MaxHops," << maxHops << "\n";
   
   summaryFile.close();
   cout << "Riepilogo delle ricerche salvato in: " << summaryPath << endl;
@@ -154,7 +170,7 @@ int main (int argc, char *argv[])
   // Numero di file da inserire
   uint32_t numFiles = 500;
   // Numero di file da cercare
-  uint32_t numLookups = 100;
+  uint32_t numLookups = 1;
   // Seed per generatore di numeri casuali
   uint32_t seed = 9;
   uint32_t run = 1000;
@@ -272,7 +288,7 @@ int main (int argc, char *argv[])
     
     // Pianifichiamo l'inserimento del file
     Simulator::Schedule(Seconds(insertStartTime + i * insertInterval), &ChordApplication::StoreFile, 
-                      chordApps[startNodeIdx], fileId);
+                      chordApps[startNodeIdx], fileId, 1024, 0);
     
     if (i % 50 == 0) {
       cout << "Pianificato inserimento file " << i << "/" << numFiles << endl;
@@ -340,13 +356,13 @@ int main (int argc, char *argv[])
     stats.startTime = Seconds(lookupStartTime + i * lookupInterval);
     stats.endTime = stats.startTime;  // Verrà aggiornato quando la ricerca è completata
     stats.completed = false;
+    stats.hopCount = 0;  // Inizialmente non conosciamo il numero di hop
     g_lookupStats[fileId] = stats;
     
     // Pianifichiamo la ricerca
     Simulator::Schedule(stats.startTime, [lookupNodeIdx, fileId, chordApps]() {
-      cout << "Avvio ricerca file ID " << fileId << " dal nodo chordId " 
-           << chordApps[lookupNodeIdx]->GetChordId() << endl;
-      chordApps[lookupNodeIdx]->GetFile(fileId);
+      cout << "RICERCA: Nodo " << chordApps[lookupNodeIdx]->GetChordId() << " inizia la ricerca del file " << fileId << endl;
+      chordApps[lookupNodeIdx]->GetFile(fileId, 0);
     });
     
     if (i % 10 == 0) {
@@ -367,17 +383,26 @@ int main (int argc, char *argv[])
     double minTime = numeric_limits<double>::max();
     double maxTime = 0.0;
     int successCount = 0;
+    uint32_t totalHops = 0;
+    uint32_t minHops = numeric_limits<uint32_t>::max();
+    uint32_t maxHops = 0;
     
     for (const auto& entry : g_lookupStats) {
       double elapsedTimeMs = (entry.second.endTime - entry.second.startTime).GetMilliSeconds();
       totalTime += elapsedTimeMs;
       minTime = min(minTime, elapsedTimeMs);
       maxTime = max(maxTime, elapsedTimeMs);
+      
+      totalHops += entry.second.hopCount;
+      minHops = min(minHops, entry.second.hopCount);
+      maxHops = max(maxHops, entry.second.hopCount);
+      
       if (entry.second.completed) successCount++;
     }
     
     double avgTime = totalTime / g_lookupStats.size();
     double successRate = (double)successCount / g_lookupStats.size() * 100.0;
+    double avgHops = (double)totalHops / g_lookupStats.size();
     
     cout << "Ricerche totali: " << g_lookupStats.size() << endl;
     cout << "Ricerche completate con successo: " << successCount << endl;
@@ -386,6 +411,10 @@ int main (int argc, char *argv[])
     cout << "Tempo medio di ricerca: " << fixed << setprecision(2) << avgTime << " ms" << endl;
     cout << "Tempo minimo di ricerca: " << fixed << setprecision(2) << minTime << " ms" << endl;
     cout << "Tempo massimo di ricerca: " << fixed << setprecision(2) << maxTime << " ms" << endl;
+    cout << "Numero totale di hop: " << totalHops << endl;
+    cout << "Numero medio di hop: " << fixed << setprecision(2) << avgHops << endl;
+    cout << "Numero minimo di hop: " << minHops << endl;
+    cout << "Numero massimo di hop: " << maxHops << endl;
     cout << "======================================================\n" << endl;
   });
   
