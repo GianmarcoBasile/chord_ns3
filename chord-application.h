@@ -9,9 +9,13 @@
 #include "ns3/simulator.h"
 #include "ns3/udp-socket-factory.h"
 #include "chord-header.h"
+#include <functional>  // Per std::function
 
 using namespace ns3;
 using namespace std;
+
+// Definizione del tipo di callback per le ricerche di file completate
+typedef function<void(uint32_t, bool)> FileLookupCompletedCallback;
 
 // Classe per l'applicazione Chord
 class ChordApplication : public Application {
@@ -34,6 +38,9 @@ public:
   void StoreFile(uint32_t fileId);
   void GetFile(uint32_t fileId);
   vector<uint32_t> GetStoredFiles();
+  
+  // Metodo per registrare il callback per il completamento della ricerca di file
+  void SetFileLookupCompletedCallback(FileLookupCompletedCallback callback);
 
 private:
   virtual void StartApplication(void);
@@ -62,6 +69,10 @@ private:
   bool m_running;
   uint32_t m_packetsSent;
   uint32_t m_packetsReceived;
+  
+  // Nuovi membri per tenere traccia delle ricerche di file
+  map<uint32_t, bool> m_pendingFileLookups;  // Mappa degli ID file in attesa di risposta
+  FileLookupCompletedCallback m_fileLookupCompletedCallback;
 };
 
 #endif // CHORD_APPLICATION_H 
