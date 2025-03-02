@@ -15085,16 +15085,15 @@ RICERCA: Nodo 16270 trova nodo precedente 16348 per chiave 13524 (wrap-around)
 ARCHIVIAZIONE: Nodo 16270 inoltra a nodo 16348 la richiesta di archiviazione per il file 13524
 ARCHIVIAZIONE: Nodo 8823 ha ricevuto richiesta di archiviazione per file 9338 (hop: 1)
 ARCHIVIAZIONE: Nodo 8823 inoltra la richiesta di archiviazione per il file 9338
-RICERCA: Nodo 8823 trova nodo precedente 9092 per chiave 9338
-ARCHIVIAZIONE: Nodo 8823 inoltra a nodo 9092 la richiesta di archiviazione per il file 9338
+RICERCA: Nodo 8823 trova nodo precedente 9338 per chiave 9338
+ARCHIVIAZIONE: Nodo 8823 inoltra a nodo 9338 la richiesta di archiviazione per il file 9338
 ARCHIVIAZIONE: Nodo 15989 ha ricevuto richiesta di archiviazione per file 4 (hop: 4)
 ARCHIVIAZIONE: Nodo 15989 inoltra la richiesta di archiviazione per il file 4
 RICERCA: Nodo 15989 trova nodo precedente 16270 per chiave 4 (wrap-around)
 ARCHIVIAZIONE: Nodo 15989 inoltra a nodo 16270 la richiesta di archiviazione per il file 4
-ARCHIVIAZIONE: Nodo 9092 ha ricevuto richiesta di archiviazione per file 9338 (hop: 2)
-ARCHIVIAZIONE: Nodo 9092 inoltra la richiesta di archiviazione per il file 9338
-RICERCA: Nodo 9092 trova nodo precedente 9250 per chiave 9338
-ARCHIVIAZIONE: Nodo 9092 inoltra a nodo 9250 la richiesta di archiviazione per il file 9338
+ARCHIVIAZIONE: Nodo 9338 ha ricevuto richiesta di archiviazione per file 9338 (hop: 2)
+ARCHIVIAZIONE: Nodo 9338 memorizza il file 9338 (dimensione: 1024 bytes)
+STATISTICHE ARCHIVIAZIONE: Nodo 9338 ha memorizzato 2 file per un totale di 2048 bytes
 ARCHIVIAZIONE: Nodo 16270 ha ricevuto richiesta di archiviazione per file 4 (hop: 5)
 ARCHIVIAZIONE: Nodo 16270 inoltra la richiesta di archiviazione per il file 4
 RICERCA: Nodo 16270 trova nodo precedente 16348 per chiave 4 (wrap-around)
@@ -15114,10 +15113,6 @@ ARCHIVIAZIONE: Nodo 11020 ha ricevuto richiesta di archiviazione per file 11347 
 ARCHIVIAZIONE: Nodo 11020 inoltra la richiesta di archiviazione per il file 11347
 RICERCA: Nodo 11020 trova nodo precedente 11285 per chiave 11347
 ARCHIVIAZIONE: Nodo 11020 inoltra a nodo 11285 la richiesta di archiviazione per il file 11347
-ARCHIVIAZIONE: Nodo 9250 ha ricevuto richiesta di archiviazione per file 9338 (hop: 3)
-ARCHIVIAZIONE: Nodo 9250 inoltra la richiesta di archiviazione per il file 9338
-RICERCA: Nodo 9250 trova nodo precedente 9329 per chiave 9338
-ARCHIVIAZIONE: Nodo 9250 inoltra a nodo 9329 la richiesta di archiviazione per il file 9338
 ARCHIVIAZIONE: Nodo 16372 ha ricevuto richiesta di archiviazione per file 13524 (hop: 5)
 ARCHIVIAZIONE: Nodo 16372 memorizza il file 13524 (dimensione: 1024 bytes)
 STATISTICHE ARCHIVIAZIONE: Nodo 16372 ha memorizzato 97 file per un totale di 99328 bytes
@@ -15132,10 +15127,6 @@ ARCHIVIAZIONE: Nodo 11285 ha ricevuto richiesta di archiviazione per file 11347 
 ARCHIVIAZIONE: Nodo 11285 inoltra la richiesta di archiviazione per il file 11347
 RICERCA: Nodo 11285 trova nodo precedente 11336 per chiave 11347
 ARCHIVIAZIONE: Nodo 11285 inoltra a nodo 11336 la richiesta di archiviazione per il file 11347
-ARCHIVIAZIONE: Nodo 9329 ha ricevuto richiesta di archiviazione per file 9338 (hop: 4)
-ARCHIVIAZIONE: Nodo 9329 inoltra la richiesta di archiviazione per il file 9338
-RICERCA: Nodo 9329 trova nodo precedente 9333 per chiave 9338
-ARCHIVIAZIONE: Nodo 9329 inoltra a nodo 9333 la richiesta di archiviazione per il file 9338
 ARCHIVIAZIONE: Nodo 4487 ha ricevuto richiesta di archiviazione per file 6473 (hop: 1)
 ARCHIVIAZIONE: Nodo 4487 inoltra la richiesta di archiviazione per il file 6473
 RICERCA: Nodo 4487 trova nodo precedente 5520 per chiave 6473
@@ -15147,9 +15138,6 @@ ARCHIVIAZIONE: Nodo 11336 ha ricevuto richiesta di archiviazione per file 11347 
 ARCHIVIAZIONE: Nodo 11336 inoltra la richiesta di archiviazione per il file 11347
 RICERCA: Nodo 11336 trova nodo precedente 11346 per chiave 11347
 ARCHIVIAZIONE: Nodo 11336 inoltra a nodo 11346 la richiesta di archiviazione per il file 11347
-ARCHIVIAZIONE: Nodo 9333 ha ricevuto richiesta di archiviazione per file 9338 (hop: 5)
-ARCHIVIAZIONE: Nodo 9333 inoltra la richiesta di archiviazione per il file 9338
-ERRORE: Nodo 9333 non ha trovato un nodo a cui inoltrare la richiesta di archiviazione per il file 9338
 ARCHIVIAZIONE: Nodo 5520 ha ricevuto richiesta di archiviazione per file 6473 (hop: 2)
 ARCHIVIAZIONE: Nodo 5520 inoltra la richiesta di archiviazione per il file 6473
 RICERCA: Nodo 5520 trova nodo precedente 6039 per chiave 6473
@@ -15174,19 +15162,18 @@ RICERCA: Nodo 14383 trova nodo precedente 14428 per chiave 14430
 ARCHIVIAZIONE: Nodo 14383 inoltra a nodo 14428 la richiesta di archiviazione per il file 14430
 ARCHIVIAZIONE: Nodo 6338 ha ricevuto richiesta di archiviazione per file 6473 (hop: 4)
 ARCHIVIAZIONE: Nodo 6338 inoltra la richiesta di archiviazione per il file 6473
-RICERCA: Nodo 6338 trova nodo precedente 6409 per chiave 6473
-ARCHIVIAZIONE: Nodo 6338 inoltra a nodo 6409 la richiesta di archiviazione per il file 6473
+RICERCA: Nodo 6338 trova nodo precedente 6473 per chiave 6473
+ARCHIVIAZIONE: Nodo 6338 inoltra a nodo 6473 la richiesta di archiviazione per il file 6473
 ARCHIVIAZIONE: Nodo 1263 inoltra la richiesta di archiviazione per il file 5651
 RICERCA: Nodo 1263 trova nodo precedente 5383 per chiave 5651
 ARCHIVIAZIONE: Nodo 1263 inoltra a nodo 5383 la richiesta di archiviazione per il file 5651
+ARCHIVIAZIONE: Nodo 6473 ha ricevuto richiesta di archiviazione per file 6473 (hop: 5)
+ARCHIVIAZIONE: Nodo 6473 memorizza il file 6473 (dimensione: 1024 bytes)
+STATISTICHE ARCHIVIAZIONE: Nodo 6473 ha memorizzato 1 file per un totale di 1024 bytes
 ARCHIVIAZIONE: Nodo 14428 ha ricevuto richiesta di archiviazione per file 14430 (hop: 3)
 ARCHIVIAZIONE: Nodo 14428 inoltra la richiesta di archiviazione per il file 14430
 RICERCA: Nodo 14428 trova nodo precedente 14429 per chiave 14430
 ARCHIVIAZIONE: Nodo 14428 inoltra a nodo 14429 la richiesta di archiviazione per il file 14430
-ARCHIVIAZIONE: Nodo 6409 ha ricevuto richiesta di archiviazione per file 6473 (hop: 5)
-ARCHIVIAZIONE: Nodo 6409 inoltra la richiesta di archiviazione per il file 6473
-RICERCA: Nodo 6409 trova nodo precedente 6441 per chiave 6473
-ARCHIVIAZIONE: Nodo 6409 inoltra a nodo 6441 la richiesta di archiviazione per il file 6473
 ARCHIVIAZIONE: Nodo 5383 ha ricevuto richiesta di archiviazione per file 5651 (hop: 1)
 ARCHIVIAZIONE: Nodo 5383 inoltra la richiesta di archiviazione per il file 5651
 RICERCA: Nodo 5383 trova nodo precedente 5520 per chiave 5651
@@ -15194,10 +15181,6 @@ ARCHIVIAZIONE: Nodo 5383 inoltra a nodo 5520 la richiesta di archiviazione per i
 ARCHIVIAZIONE: Nodo 14429 ha ricevuto richiesta di archiviazione per file 14430 (hop: 4)
 ARCHIVIAZIONE: Nodo 14429 memorizza il file 14430 (dimensione: 1024 bytes)
 STATISTICHE ARCHIVIAZIONE: Nodo 14429 ha memorizzato 1 file per un totale di 1024 bytes
-ARCHIVIAZIONE: Nodo 6441 ha ricevuto richiesta di archiviazione per file 6473 (hop: 6)
-ARCHIVIAZIONE: Nodo 6441 inoltra la richiesta di archiviazione per il file 6473
-RICERCA: Nodo 6441 trova nodo precedente 6452 per chiave 6473
-ARCHIVIAZIONE: Nodo 6441 inoltra a nodo 6452 la richiesta di archiviazione per il file 6473
 ARCHIVIAZIONE: Nodo 5520 ha ricevuto richiesta di archiviazione per file 5651 (hop: 2)
 ARCHIVIAZIONE: Nodo 5520 inoltra la richiesta di archiviazione per il file 5651
 RICERCA: Nodo 5520 trova nodo precedente 5602 per chiave 5651
@@ -15209,9 +15192,6 @@ ARCHIVIAZIONE: Nodo 5602 ha ricevuto richiesta di archiviazione per file 5651 (h
 ARCHIVIAZIONE: Nodo 5602 inoltra la richiesta di archiviazione per il file 5651
 RICERCA: Nodo 5602 trova nodo precedente 5634 per chiave 5651
 ARCHIVIAZIONE: Nodo 5602 inoltra a nodo 5634 la richiesta di archiviazione per il file 5651
-ARCHIVIAZIONE: Nodo 6452 ha ricevuto richiesta di archiviazione per file 6473 (hop: 7)
-ARCHIVIAZIONE: Nodo 6452 inoltra la richiesta di archiviazione per il file 6473
-ERRORE: Nodo 6452 non ha trovato un nodo a cui inoltrare la richiesta di archiviazione per il file 6473
 ARCHIVIAZIONE: Nodo 15534 ha ricevuto richiesta di archiviazione per file 3405 (hop: 1)
 ARCHIVIAZIONE: Nodo 15534 inoltra la richiesta di archiviazione per il file 3405
 RICERCA: Nodo 15534 trova nodo precedente 16047 per chiave 3405 (wrap-around)
@@ -15795,8 +15775,8 @@ RICERCA: Nodo 15413 trova nodo precedente 15941 per chiave 9717 (wrap-around)
 ARCHIVIAZIONE: Nodo 15413 inoltra a nodo 15941 la richiesta di archiviazione per il file 9717
 ARCHIVIAZIONE: Nodo 7554 ha ricevuto richiesta di archiviazione per file 7588 (hop: 2)
 ARCHIVIAZIONE: Nodo 7554 inoltra la richiesta di archiviazione per il file 7588
-RICERCA: Nodo 7554 trova nodo precedente 7566 per chiave 7588
-ARCHIVIAZIONE: Nodo 7554 inoltra a nodo 7566 la richiesta di archiviazione per il file 7588
+RICERCA: Nodo 7554 trova nodo precedente 7588 per chiave 7588
+ARCHIVIAZIONE: Nodo 7554 inoltra a nodo 7588 la richiesta di archiviazione per il file 7588
 ARCHIVIAZIONE: Nodo 5332 ha ricevuto richiesta di archiviazione per file 5380 (hop: 6)
 ARCHIVIAZIONE: Nodo 5332 memorizza il file 5380 (dimensione: 1024 bytes)
 STATISTICHE ARCHIVIAZIONE: Nodo 5332 ha memorizzato 1 file per un totale di 1024 bytes
@@ -15807,9 +15787,9 @@ ARCHIVIAZIONE: Nodo 15941 inoltra a nodo 16209 la richiesta di archiviazione per
 ARCHIVIAZIONE: Nodo 10594 inoltra la richiesta di archiviazione per il file 7605
 RICERCA: Nodo 10594 trova nodo precedente 14692 per chiave 7605 (wrap-around)
 ARCHIVIAZIONE: Nodo 10594 inoltra a nodo 14692 la richiesta di archiviazione per il file 7605
-ARCHIVIAZIONE: Nodo 7566 ha ricevuto richiesta di archiviazione per file 7588 (hop: 3)
-ARCHIVIAZIONE: Nodo 7566 inoltra la richiesta di archiviazione per il file 7588
-ERRORE: Nodo 7566 non ha trovato un nodo a cui inoltrare la richiesta di archiviazione per il file 7588
+ARCHIVIAZIONE: Nodo 7588 ha ricevuto richiesta di archiviazione per file 7588 (hop: 3)
+ARCHIVIAZIONE: Nodo 7588 memorizza il file 7588 (dimensione: 1024 bytes)
+STATISTICHE ARCHIVIAZIONE: Nodo 7588 ha memorizzato 1 file per un totale di 1024 bytes
 ARCHIVIAZIONE: Nodo 16209 ha ricevuto richiesta di archiviazione per file 9717 (hop: 3)
 ARCHIVIAZIONE: Nodo 16209 inoltra la richiesta di archiviazione per il file 9717
 RICERCA: Nodo 16209 trova nodo precedente 16348 per chiave 9717 (wrap-around)
@@ -17190,8 +17170,8 @@ ARCHIVIAZIONE: Nodo 14970 inoltra la richiesta di archiviazione per il file 1504
 RICERCA: Nodo 14970 trova nodo precedente 15006 per chiave 15043
 ARCHIVIAZIONE: Nodo 14970 inoltra a nodo 15006 la richiesta di archiviazione per il file 15043
 ARCHIVIAZIONE: Nodo 7126 ha ricevuto richiesta di archiviazione per file 7150 (hop: 5)
-ARCHIVIAZIONE: Nodo 7126 inoltra la richiesta di archiviazione per il file 7150
-ERRORE: Nodo 7126 non ha trovato un nodo a cui inoltrare la richiesta di archiviazione per il file 7150
+ARCHIVIAZIONE: Nodo 7126 memorizza il file 7150 (dimensione: 1024 bytes)
+STATISTICHE ARCHIVIAZIONE: Nodo 7126 ha memorizzato 1 file per un totale di 1024 bytes
 ARCHIVIAZIONE: Nodo 15006 ha ricevuto richiesta di archiviazione per file 15043 (hop: 4)
 ARCHIVIAZIONE: Nodo 15006 inoltra la richiesta di archiviazione per il file 15043
 RICERCA: Nodo 15006 trova nodo precedente 15013 per chiave 15043
@@ -18575,8 +18555,8 @@ ARCHIVIAZIONE: Nodo 5383 inoltra la richiesta di archiviazione per il file 6213
 RICERCA: Nodo 5383 trova nodo precedente 5925 per chiave 6213
 ARCHIVIAZIONE: Nodo 5383 inoltra a nodo 5925 la richiesta di archiviazione per il file 6213
 ARCHIVIAZIONE: Nodo 8926 ha ricevuto richiesta di archiviazione per file 8928 (hop: 2)
-ARCHIVIAZIONE: Nodo 8926 inoltra la richiesta di archiviazione per il file 8928
-ERRORE: Nodo 8926 non ha trovato un nodo a cui inoltrare la richiesta di archiviazione per il file 8928
+ARCHIVIAZIONE: Nodo 8926 memorizza il file 8928 (dimensione: 1024 bytes)
+STATISTICHE ARCHIVIAZIONE: Nodo 8926 ha memorizzato 1 file per un totale di 1024 bytes
 ARCHIVIAZIONE: Nodo 5925 ha ricevuto richiesta di archiviazione per file 6213 (hop: 2)
 ARCHIVIAZIONE: Nodo 5925 inoltra la richiesta di archiviazione per il file 6213
 RICERCA: Nodo 5925 trova nodo precedente 6182 per chiave 6213
@@ -18593,18 +18573,14 @@ RICERCA: Nodo 6656 trova nodo precedente 6949 per chiave 6966
 ARCHIVIAZIONE: Nodo 6656 inoltra a nodo 6949 la richiesta di archiviazione per il file 6966
 ARCHIVIAZIONE: Nodo 6949 ha ricevuto richiesta di archiviazione per file 6966 (hop: 2)
 ARCHIVIAZIONE: Nodo 6949 inoltra la richiesta di archiviazione per il file 6966
-RICERCA: Nodo 6949 trova nodo precedente 6958 per chiave 6966
-ARCHIVIAZIONE: Nodo 6949 inoltra a nodo 6958 la richiesta di archiviazione per il file 6966
+RICERCA: Nodo 6949 trova nodo precedente 6966 per chiave 6966
+ARCHIVIAZIONE: Nodo 6949 inoltra a nodo 6966 la richiesta di archiviazione per il file 6966
 ARCHIVIAZIONE: Nodo 16128 inoltra la richiesta di archiviazione per il file 9576
 RICERCA: Nodo 16128 trova nodo precedente 16270 per chiave 9576 (wrap-around)
 ARCHIVIAZIONE: Nodo 16128 inoltra a nodo 16270 la richiesta di archiviazione per il file 9576
-ARCHIVIAZIONE: Nodo 6958 ha ricevuto richiesta di archiviazione per file 6966 (hop: 3)
-ARCHIVIAZIONE: Nodo 6958 inoltra la richiesta di archiviazione per il file 6966
-RICERCA: Nodo 6958 trova nodo precedente 6962 per chiave 6966
-ARCHIVIAZIONE: Nodo 6958 inoltra a nodo 6962 la richiesta di archiviazione per il file 6966
-ARCHIVIAZIONE: Nodo 6962 ha ricevuto richiesta di archiviazione per file 6966 (hop: 4)
-ARCHIVIAZIONE: Nodo 6962 inoltra la richiesta di archiviazione per il file 6966
-ERRORE: Nodo 6962 non ha trovato un nodo a cui inoltrare la richiesta di archiviazione per il file 6966
+ARCHIVIAZIONE: Nodo 6966 ha ricevuto richiesta di archiviazione per file 6966 (hop: 3)
+ARCHIVIAZIONE: Nodo 6966 memorizza il file 6966 (dimensione: 1024 bytes)
+STATISTICHE ARCHIVIAZIONE: Nodo 6966 ha memorizzato 1 file per un totale di 1024 bytes
 ARCHIVIAZIONE: Nodo 2374 inoltra la richiesta di archiviazione per il file 5500
 RICERCA: Nodo 2374 trova nodo precedente 4446 per chiave 5500
 ARCHIVIAZIONE: Nodo 2374 inoltra a nodo 4446 la richiesta di archiviazione per il file 5500
@@ -19007,22 +18983,18 @@ ARCHIVIAZIONE: Nodo 16372 memorizza il file 2913 (dimensione: 1024 bytes)
 STATISTICHE ARCHIVIAZIONE: Nodo 16372 ha memorizzato 201 file per un totale di 205824 bytes
 ARCHIVIAZIONE: Nodo 13828 ha ricevuto richiesta di archiviazione per file 13854 (hop: 1)
 ARCHIVIAZIONE: Nodo 13828 inoltra la richiesta di archiviazione per il file 13854
-RICERCA: Nodo 13828 trova nodo precedente 13833 per chiave 13854
-ARCHIVIAZIONE: Nodo 13828 inoltra a nodo 13833 la richiesta di archiviazione per il file 13854
+RICERCA: Nodo 13828 trova nodo precedente 13854 per chiave 13854
+ARCHIVIAZIONE: Nodo 13828 inoltra a nodo 13854 la richiesta di archiviazione per il file 13854
 ARCHIVIAZIONE: Nodo 5503 inoltra la richiesta di archiviazione per il file 14943
 RICERCA: Nodo 5503 trova nodo precedente 13698 per chiave 14943
 ARCHIVIAZIONE: Nodo 5503 inoltra a nodo 13698 la richiesta di archiviazione per il file 14943
-ARCHIVIAZIONE: Nodo 13833 ha ricevuto richiesta di archiviazione per file 13854 (hop: 2)
-ARCHIVIAZIONE: Nodo 13833 inoltra la richiesta di archiviazione per il file 13854
-RICERCA: Nodo 13833 trova nodo precedente 13834 per chiave 13854
-ARCHIVIAZIONE: Nodo 13833 inoltra a nodo 13834 la richiesta di archiviazione per il file 13854
 ARCHIVIAZIONE: Nodo 13698 ha ricevuto richiesta di archiviazione per file 14943 (hop: 1)
 ARCHIVIAZIONE: Nodo 13698 inoltra la richiesta di archiviazione per il file 14943
 RICERCA: Nodo 13698 trova nodo precedente 14770 per chiave 14943
 ARCHIVIAZIONE: Nodo 13698 inoltra a nodo 14770 la richiesta di archiviazione per il file 14943
-ARCHIVIAZIONE: Nodo 13834 ha ricevuto richiesta di archiviazione per file 13854 (hop: 3)
-ARCHIVIAZIONE: Nodo 13834 inoltra la richiesta di archiviazione per il file 13854
-ERRORE: Nodo 13834 non ha trovato un nodo a cui inoltrare la richiesta di archiviazione per il file 13854
+ARCHIVIAZIONE: Nodo 13854 ha ricevuto richiesta di archiviazione per file 13854 (hop: 2)
+ARCHIVIAZIONE: Nodo 13854 memorizza il file 13854 (dimensione: 1024 bytes)
+STATISTICHE ARCHIVIAZIONE: Nodo 13854 ha memorizzato 1 file per un totale di 1024 bytes
 ARCHIVIAZIONE: Nodo 14770 ha ricevuto richiesta di archiviazione per file 14943 (hop: 2)
 ARCHIVIAZIONE: Nodo 14770 inoltra la richiesta di archiviazione per il file 14943
 RICERCA: Nodo 14770 trova nodo precedente 14912 per chiave 14943
@@ -20551,8 +20523,8 @@ RICERCA: Nodo 14383 trova nodo precedente 14645 per chiave 14806
 ARCHIVIAZIONE: Nodo 14383 inoltra a nodo 14645 la richiesta di archiviazione per il file 14806
 ARCHIVIAZIONE: Nodo 14042 ha ricevuto richiesta di archiviazione per file 14130 (hop: 2)
 ARCHIVIAZIONE: Nodo 14042 inoltra la richiesta di archiviazione per il file 14130
-RICERCA: Nodo 14042 trova nodo precedente 14082 per chiave 14130
-ARCHIVIAZIONE: Nodo 14042 inoltra a nodo 14082 la richiesta di archiviazione per il file 14130
+RICERCA: Nodo 14042 trova nodo precedente 14130 per chiave 14130
+ARCHIVIAZIONE: Nodo 14042 inoltra a nodo 14130 la richiesta di archiviazione per il file 14130
 ARCHIVIAZIONE: Nodo 16270 ha ricevuto richiesta di archiviazione per file 2323 (hop: 2)
 ARCHIVIAZIONE: Nodo 16270 inoltra la richiesta di archiviazione per il file 2323
 RICERCA: Nodo 16270 trova nodo precedente 16348 per chiave 2323 (wrap-around)
@@ -20564,21 +20536,17 @@ ARCHIVIAZIONE: Nodo 14645 inoltra a nodo 14781 la richiesta di archiviazione per
 ARCHIVIAZIONE: Nodo 9706 inoltra la richiesta di archiviazione per il file 11777
 RICERCA: Nodo 9706 trova nodo precedente 11755 per chiave 11777
 ARCHIVIAZIONE: Nodo 9706 inoltra a nodo 11755 la richiesta di archiviazione per il file 11777
-ARCHIVIAZIONE: Nodo 14082 ha ricevuto richiesta di archiviazione per file 14130 (hop: 3)
-ARCHIVIAZIONE: Nodo 14082 inoltra la richiesta di archiviazione per il file 14130
-RICERCA: Nodo 14082 trova nodo precedente 14100 per chiave 14130
-ARCHIVIAZIONE: Nodo 14082 inoltra a nodo 14100 la richiesta di archiviazione per il file 14130
 ARCHIVIAZIONE: Nodo 14781 ha ricevuto richiesta di archiviazione per file 14806 (hop: 6)
 ARCHIVIAZIONE: Nodo 14781 inoltra la richiesta di archiviazione per il file 14806
 RICERCA: Nodo 14781 trova nodo precedente 14794 per chiave 14806
 ARCHIVIAZIONE: Nodo 14781 inoltra a nodo 14794 la richiesta di archiviazione per il file 14806
-ARCHIVIAZIONE: Nodo 14100 ha ricevuto richiesta di archiviazione per file 14130 (hop: 4)
-ARCHIVIAZIONE: Nodo 14100 inoltra la richiesta di archiviazione per il file 14130
-ERRORE: Nodo 14100 non ha trovato un nodo a cui inoltrare la richiesta di archiviazione per il file 14130
 ARCHIVIAZIONE: Nodo 11755 ha ricevuto richiesta di archiviazione per file 11777 (hop: 1)
 ARCHIVIAZIONE: Nodo 11755 inoltra la richiesta di archiviazione per il file 11777
 RICERCA: Nodo 11755 trova nodo precedente 11771 per chiave 11777
 ARCHIVIAZIONE: Nodo 11755 inoltra a nodo 11771 la richiesta di archiviazione per il file 11777
+ARCHIVIAZIONE: Nodo 14130 ha ricevuto richiesta di archiviazione per file 14130 (hop: 3)
+ARCHIVIAZIONE: Nodo 14130 memorizza il file 14130 (dimensione: 1024 bytes)
+STATISTICHE ARCHIVIAZIONE: Nodo 14130 ha memorizzato 2 file per un totale di 2048 bytes
 ARCHIVIAZIONE: Nodo 16348 ha ricevuto richiesta di archiviazione per file 2323 (hop: 3)
 ARCHIVIAZIONE: Nodo 16348 inoltra la richiesta di archiviazione per il file 2323
 RICERCA: Nodo 16348 trova nodo precedente 16372 per chiave 2323 (wrap-around)
@@ -20806,8 +20774,8 @@ ARCHIVIAZIONE: Nodo 8938 ha ricevuto richiesta di archiviazione per file 8953 (h
 ARCHIVIAZIONE: Nodo 8938 memorizza il file 8953 (dimensione: 1024 bytes)
 STATISTICHE ARCHIVIAZIONE: Nodo 8938 ha memorizzato 1 file per un totale di 1024 bytes
 ARCHIVIAZIONE: Nodo 15413 ha ricevuto richiesta di archiviazione per file 15428 (hop: 4)
-ARCHIVIAZIONE: Nodo 15413 inoltra la richiesta di archiviazione per il file 15428
-ERRORE: Nodo 15413 non ha trovato un nodo a cui inoltrare la richiesta di archiviazione per il file 15428
+ARCHIVIAZIONE: Nodo 15413 memorizza il file 15428 (dimensione: 1024 bytes)
+STATISTICHE ARCHIVIAZIONE: Nodo 15413 ha memorizzato 2 file per un totale di 2048 bytes
 ARCHIVIAZIONE: Nodo 8759 inoltra la richiesta di archiviazione per il file 12816
 RICERCA: Nodo 8759 trova nodo precedente 10822 per chiave 12816
 ARCHIVIAZIONE: Nodo 8759 inoltra a nodo 10822 la richiesta di archiviazione per il file 12816
@@ -20849,8 +20817,8 @@ ARCHIVIAZIONE: Nodo 15477 ha ricevuto richiesta di archiviazione per file 15508 
 ARCHIVIAZIONE: Nodo 15477 memorizza il file 15508 (dimensione: 1024 bytes)
 STATISTICHE ARCHIVIAZIONE: Nodo 15477 ha memorizzato 1 file per un totale di 1024 bytes
 ARCHIVIAZIONE: Nodo 12814 ha ricevuto richiesta di archiviazione per file 12816 (hop: 6)
-ARCHIVIAZIONE: Nodo 12814 inoltra la richiesta di archiviazione per il file 12816
-ERRORE: Nodo 12814 non ha trovato un nodo a cui inoltrare la richiesta di archiviazione per il file 12816
+ARCHIVIAZIONE: Nodo 12814 memorizza il file 12816 (dimensione: 1024 bytes)
+STATISTICHE ARCHIVIAZIONE: Nodo 12814 ha memorizzato 1 file per un totale di 1024 bytes
 ARCHIVIAZIONE: Nodo 16348 ha ricevuto richiesta di archiviazione per file 4944 (hop: 2)
 ARCHIVIAZIONE: Nodo 16348 inoltra la richiesta di archiviazione per il file 4944
 RICERCA: Nodo 16348 trova nodo precedente 16372 per chiave 4944 (wrap-around)
@@ -21394,7 +21362,7 @@ Nodo 600 (chordId: 9657) ha 1 file
 Nodo 700 (chordId: 11078) ha 0 file
 Nodo 800 (chordId: 12829) ha 1 file
 Nodo 900 (chordId: 14519) ha 2 file
-Totale file memorizzati nella rete: 490
+Totale file memorizzati nella rete: 500
 ==============================
 
 
@@ -21405,15 +21373,15 @@ RICERCA: Nodo 8982 cerca file 14276 (hop: 0)
 RICERCA: Nodo 8982 trova nodo precedente 13078 per chiave 14276
 RICERCA: Nodo 8982 inoltra richiesta per file 14276 al nodo 13078
 RICERCA: Nodo 8982 invia richiesta per file 14276 al nodo 13078 (hop: 1)
-RICERCA: Nodo 13078 ha ricevuto richiesta per file 14276 dal nodo 8982 (hop: 1)
+RICERCA: Nodo 13078 ha ricevuto richiesta per file 14276 inoltrata dal nodo 13078, originata dal nodo 8982 (hop: 1)
 RICERCA: Nodo 13078 trova nodo precedente 14130 per chiave 14276
 RICERCA: Nodo 13078 inoltra richiesta per file 14276 al nodo 14130
 RICERCA: Nodo 13078 inoltra richiesta per file 14276 al nodo 14130 (hop: 2)
-RICERCA: Nodo 14130 ha ricevuto richiesta per file 14276 dal nodo 8982 (hop: 2)
+RICERCA: Nodo 14130 ha ricevuto richiesta per file 14276 inoltrata dal nodo 13078, originata dal nodo 8982 (hop: 2)
 RICERCA: Nodo 14130 trova nodo precedente 14261 per chiave 14276
 RICERCA: Nodo 14130 inoltra richiesta per file 14276 al nodo 14261
 RICERCA: Nodo 14130 inoltra richiesta per file 14276 al nodo 14261 (hop: 3)
-RICERCA: Nodo 14261 ha ricevuto richiesta per file 14276 dal nodo 8982 (hop: 3)
+RICERCA: Nodo 14261 ha ricevuto richiesta per file 14276 inoltrata dal nodo 14261, originata dal nodo 8982 (hop: 3)
 RICERCA: Nodo 14261 ha trovato il file 14276 localmente
 RICERCA: Nodo 14261 invia risposta POSITIVA per file 14276 al nodo 8982 (hop: 3)
 RICERCA COMPLETATA: Nodo 8982 ha ricevuto risposta POSITIVA per file 14276 (hop: 3)
@@ -21458,8 +21426,8 @@ Statistiche del nodo 11483:
   - File memorizzati: 0
   - Bytes memorizzati: 0
 Statistiche del nodo 6966:
-  - File memorizzati: 0
-  - Bytes memorizzati: 0
+  - File memorizzati: 1
+  - Bytes memorizzati: 1024
 Statistiche del nodo 6989:
   - File memorizzati: 0
   - Bytes memorizzati: 0
@@ -21590,8 +21558,8 @@ Statistiche del nodo 10920:
   - File memorizzati: 1
   - Bytes memorizzati: 1024
 Statistiche del nodo 13854:
-  - File memorizzati: 0
-  - Bytes memorizzati: 0
+  - File memorizzati: 1
+  - Bytes memorizzati: 1024
 Statistiche del nodo 8303:
   - File memorizzati: 1
   - Bytes memorizzati: 1024
@@ -21620,8 +21588,8 @@ Statistiche del nodo 13054:
   - File memorizzati: 1
   - Bytes memorizzati: 1024
 Statistiche del nodo 14130:
-  - File memorizzati: 1
-  - Bytes memorizzati: 1024
+  - File memorizzati: 2
+  - Bytes memorizzati: 2048
 Statistiche del nodo 11013:
   - File memorizzati: 0
   - Bytes memorizzati: 0
@@ -21632,8 +21600,8 @@ Statistiche del nodo 3948:
   - File memorizzati: 0
   - Bytes memorizzati: 0
 Statistiche del nodo 8926:
-  - File memorizzati: 0
-  - Bytes memorizzati: 0
+  - File memorizzati: 1
+  - Bytes memorizzati: 1024
 Statistiche del nodo 15542:
   - File memorizzati: 0
   - Bytes memorizzati: 0
@@ -21749,8 +21717,8 @@ Statistiche del nodo 401:
   - File memorizzati: 0
   - Bytes memorizzati: 0
 Statistiche del nodo 15413:
-  - File memorizzati: 1
-  - Bytes memorizzati: 1024
+  - File memorizzati: 2
+  - Bytes memorizzati: 2048
 Statistiche del nodo 11373:
   - File memorizzati: 0
   - Bytes memorizzati: 0
@@ -21818,8 +21786,8 @@ Statistiche del nodo 3775:
   - File memorizzati: 0
   - Bytes memorizzati: 0
 Statistiche del nodo 7588:
-  - File memorizzati: 0
-  - Bytes memorizzati: 0
+  - File memorizzati: 1
+  - Bytes memorizzati: 1024
 Statistiche del nodo 14883:
   - File memorizzati: 0
   - Bytes memorizzati: 0
@@ -21854,8 +21822,8 @@ Statistiche del nodo 12448:
   - File memorizzati: 0
   - Bytes memorizzati: 0
 Statistiche del nodo 7126:
-  - File memorizzati: 0
-  - Bytes memorizzati: 0
+  - File memorizzati: 1
+  - Bytes memorizzati: 1024
 Statistiche del nodo 9956:
   - File memorizzati: 0
   - Bytes memorizzati: 0
@@ -23177,8 +23145,8 @@ Statistiche del nodo 14794:
   - File memorizzati: 1
   - Bytes memorizzati: 1024
 Statistiche del nodo 9338:
-  - File memorizzati: 1
-  - Bytes memorizzati: 1024
+  - File memorizzati: 2
+  - Bytes memorizzati: 2048
 Statistiche del nodo 3412:
   - File memorizzati: 0
   - Bytes memorizzati: 0
@@ -23210,8 +23178,8 @@ Statistiche del nodo 6409:
   - File memorizzati: 0
   - Bytes memorizzati: 0
 Statistiche del nodo 12814:
-  - File memorizzati: 0
-  - Bytes memorizzati: 0
+  - File memorizzati: 1
+  - Bytes memorizzati: 1024
 Statistiche del nodo 6049:
   - File memorizzati: 0
   - Bytes memorizzati: 0
@@ -23384,8 +23352,8 @@ Statistiche del nodo 14692:
   - File memorizzati: 0
   - Bytes memorizzati: 0
 Statistiche del nodo 6473:
-  - File memorizzati: 0
-  - Bytes memorizzati: 0
+  - File memorizzati: 1
+  - Bytes memorizzati: 1024
 Statistiche del nodo 5667:
   - File memorizzati: 0
   - Bytes memorizzati: 0

@@ -493,8 +493,30 @@ ChordApplication::HandleGetFileRequest(ChordMessage message, Address sourceAddre
   uint32_t sourceId = message.sourceId;
   uint32_t hopCount = message.hopCount;
   
-  cout << "RICERCA: Nodo " << m_chordId << " ha ricevuto richiesta per file " << fileId 
-       << " dal nodo " << sourceId << " (hop: " << hopCount << ")" << endl;
+  // Otteniamo l'indirizzo IP del mittente effettivo
+  InetSocketAddress inetSourceAddr = InetSocketAddress::ConvertFrom(sourceAddress);
+  Ipv4Address senderIp = inetSourceAddr.GetIpv4();
+  
+  // Troviamo il nodo che ha effettivamente inviato la richiesta
+  uint32_t senderIdx = m_myIndex; // Default al nostro indice
+  uint32_t senderId = m_chordId; // Default al nostro ID
+  for (uint32_t i = 0; i < m_chordNodes.size(); i++) {
+    if (m_chordNodes[i].realIp == senderIp) {
+      senderIdx = i;
+      senderId = m_chordNodes[i].chordId;
+      break;
+    }
+  }
+  
+  // Log che mostra sia il mittente effettivo che il nodo sorgente originale
+  if (senderId != sourceId) {
+    cout << "RICERCA: Nodo " << m_chordId << " ha ricevuto richiesta per file " << fileId 
+         << " inoltrata dal nodo " << senderId << ", originata dal nodo " << sourceId 
+         << " (hop: " << hopCount << ")" << endl;
+  } else {
+    cout << "RICERCA: Nodo " << m_chordId << " ha ricevuto richiesta per file " << fileId 
+         << " dal nodo " << sourceId << " (hop: " << hopCount << ")" << endl;
+  }
   
   // Verifica se il file è memorizzato localmente
   for (const auto& file : m_storedFiles) {
@@ -685,8 +707,7 @@ ChordApplication::SendGetFileRequestWithHopCount(uint32_t fileId, uint32_t targe
 // Metodo per trovare il nodo precedente più lontano dalla chiave
 uint32_t 
 ChordApplication::FindFarthestPrecedingNode(uint32_t key) {
-  // Implementazione che cerca il nodo precedente più lontano nella finger table
-  // che non supera la chiave cercata
+  // Implementazione modificata per cercare il nodo con ID massimo che è minore o uguale alla chiave
   
   // Se la finger table è vuota, restituiamo il nostro indice
   if (m_chordNodes[m_myIndex].fingerTable.empty()) {
@@ -706,25 +727,20 @@ ChordApplication::FindFarthestPrecedingNode(uint32_t key) {
     return a.first > b.first;
   });
   
-  // Troviamo il nodo con il massimo ID che non supera la chiave
-  if (key > m_chordId) {
-    // Caso normale: cerchiamo un nodo con ID < key
-    for (const auto& node : nodes) {
-      if (node.first < key && node.first > m_chordId) {
-        cout << "RICERCA: Nodo " << m_chordId << " trova nodo precedente " << node.first 
-             << " per chiave " << key << endl;
-        return node.second;
-      }
+  // Troviamo il nodo con il massimo ID che è minore o uguale alla chiave
+  for (const auto& node : nodes) {
+    if (node.first <= key) {
+      cout << "RICERCA: Nodo " << m_chordId << " trova nodo precedente " << node.first 
+           << " per chiave " << key << endl;
+      return node.second;
     }
-  } else {
-    // Caso di wrap-around: cerchiamo un nodo con ID > m_chordId o ID < key
-    for (const auto& node : nodes) {
-      if (node.first > m_chordId || node.first < key) {
-        cout << "RICERCA: Nodo " << m_chordId << " trova nodo precedente " << node.first 
-             << " per chiave " << key << " (wrap-around)" << endl;
-        return node.second;
-      }
-    }
+  }
+  
+  // Se non troviamo un nodo con ID minore o uguale alla chiave, prendiamo il nodo con ID massimo (wrap-around)
+  if (!nodes.empty()) {
+    cout << "RICERCA: Nodo " << m_chordId << " trova nodo precedente " << nodes[0].first 
+         << " per chiave " << key << " (wrap-around)" << endl;
+    return nodes[0].second;
   }
   
   // Se non troviamo un nodo migliore, restituiamo il nostro indice
@@ -734,8 +750,7 @@ ChordApplication::FindFarthestPrecedingNode(uint32_t key) {
 // Metodo alternativo per trovare il nodo precedente più lontano dalla chiave
 uint32_t 
 ChordApplication::FindFarthestPrecedingNodeAlt(uint32_t key) {
-  // Implementazione alternativa che cerca il nodo precedente più lontano nella finger table
-  // che non supera la chiave cercata
+  // Implementazione modificata per cercare il nodo con ID massimo che è minore o uguale alla chiave
   
   // Inizializziamo con il nostro indice come default
   uint32_t result = m_myIndex;
@@ -758,25 +773,20 @@ ChordApplication::FindFarthestPrecedingNodeAlt(uint32_t key) {
     return a.first > b.first;
   });
   
-  // Troviamo il nodo con il massimo ID che non supera la chiave
-  if (key > m_chordId) {
-    // Caso normale: cerchiamo un nodo con ID < key
-    for (const auto& node : nodes) {
-      if (node.first < key && node.first > m_chordId) {
-        cout << "RICERCA: Nodo " << m_chordId << " trova nodo precedente " << node.first 
-             << " per chiave " << key << endl;
-        return node.second;
-      }
+  // Troviamo il nodo con il massimo ID che è minore o uguale alla chiave
+  for (const auto& node : nodes) {
+    if (node.first <= key) {
+      cout << "RICERCA: Nodo " << m_chordId << " trova nodo precedente " << node.first 
+           << " per chiave " << key << endl;
+      return node.second;
     }
-  } else {
-    // Caso di wrap-around: cerchiamo un nodo con ID > m_chordId o ID < key
-    for (const auto& node : nodes) {
-      if (node.first > m_chordId || node.first < key) {
-        cout << "RICERCA: Nodo " << m_chordId << " trova nodo precedente " << node.first 
-             << " per chiave " << key << " (wrap-around)" << endl;
-        return node.second;
-      }
-    }
+  }
+  
+  // Se non troviamo un nodo con ID minore o uguale alla chiave, prendiamo il nodo con ID massimo (wrap-around)
+  if (!nodes.empty()) {
+    cout << "RICERCA: Nodo " << m_chordId << " trova nodo precedente " << nodes[0].first 
+         << " per chiave " << key << " (wrap-around)" << endl;
+    return nodes[0].second;
   }
   
   // Se non troviamo un nodo migliore, restituiamo il nostro indice
@@ -813,25 +823,24 @@ ChordApplication::IsResponsibleForKey(uint32_t key) {
     return true;
   }
   
-  // Ottieni l'indice del successore
+  // Otteniamo l'indice del nostro successore immediato
   uint32_t successorIdx = m_chordNodes[m_myIndex].fingerTable[0];
+  uint32_t successorId = m_chordNodes[successorIdx].chordId;
   
-  // Se il successore siamo noi stessi, siamo responsabili per tutte le chiavi
-  if (successorIdx == m_myIndex) {
+  // Se il nostro ID è uguale alla chiave, siamo responsabili
+  if (m_chordId == key) {
     return true;
   }
   
-  uint32_t successorId = m_chordNodes[successorIdx].chordId;
-  
-  // Caso 1: Il nostro ID è minore del successore
+  // Se il nostro ID è minore del successore
   if (m_chordId < successorId) {
-    // Siamo responsabili se la chiave è tra il nostro ID (incluso) e l'ID del successore (escluso)
-    return (key >= m_chordId && key < successorId);
+    // Siamo responsabili se la chiave è maggiore del nostro ID e minore o uguale all'ID del successore
+    return (key > m_chordId && key <= successorId);
   } 
-  // Caso 2: Il nostro ID è maggiore del successore (wrap-around)
+  // Se il nostro ID è maggiore del successore (wrap-around)
   else {
-    // Siamo responsabili se la chiave è maggiore o uguale al nostro ID o minore dell'ID del successore
-    return (key >= m_chordId || key < successorId);
+    // Siamo responsabili se la chiave è maggiore del nostro ID o minore o uguale all'ID del successore
+    return (key > m_chordId || key <= successorId);
   }
 }
 
