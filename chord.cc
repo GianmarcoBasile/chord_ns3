@@ -156,10 +156,10 @@ int main (int argc, char *argv[])
   // Numero di file da cercare
   uint32_t numLookups = 100;
   // Seed per generatore di numeri casuali
-  uint32_t seed = 100;
+  uint32_t seed = 9;
   uint32_t run = 1000;
   // Tempo di attesa tra l'inserimento dei file e l'inizio delle ricerche (secondi)
-  uint32_t waitBeforeLookup = 30;
+  uint32_t waitBeforeLookup = 5;
   
   CommandLine cmd;
   cmd.AddValue("numnodes", "Number of nodes", numnodes);
@@ -252,6 +252,11 @@ int main (int argc, char *argv[])
   // Intervallo tra inserimenti di file
   double insertInterval = 0.05; // Aumentato da 0.01 a 0.05 per dare più tempo
   
+  // Aggiungo un messaggio per indicare l'inizio della fase di inserimento
+  Simulator::Schedule(Seconds(insertStartTime), []() {
+    cout << "\n=== INIZIO FASE DI INSERIMENTO FILE ===" << endl;
+  });
+  
   for (uint32_t i = 0; i < numFiles; i++) {
     // Genera un ID univoco
     uint32_t fileId;
@@ -318,6 +323,12 @@ int main (int argc, char *argv[])
   
   cout << "Le ricerche inizieranno a " << lookupStartTime << " secondi dall'inizio della simulazione" << endl;
   cout << "Ovvero " << waitBeforeLookup << " secondi dopo il completamento dell'inserimento dei file" << endl;
+  
+  // Aggiungo un messaggio per indicare l'inizio della fase di ricerca
+  Simulator::Schedule(Seconds(lookupStartTime), []() {
+    cout << "\n=== INIZIO FASE DI RICERCA FILE ===" << endl;
+    cout << "Attesa di 5 secondi completata dopo la fase di inserimento" << endl;
+  });
   
   for (uint32_t i = 0; i < numLookups; i++) {
     // Utilizziamo i primi 100 file che abbiamo sicuramente inserito

@@ -42,6 +42,15 @@ public:
   // Metodo per registrare il callback per il completamento della ricerca di file
   void SetFileLookupCompletedCallback(FileLookupCompletedCallback callback);
 
+  // Metodo di supporto
+  bool isInRange(uint32_t id, uint32_t fromId, uint32_t toId) {
+    if (fromId < toId) {
+      return (id > fromId && id <= toId);
+    } else {
+      return (id > fromId || id <= toId);
+    }
+  }
+
 private:
   virtual void StartApplication(void);
   virtual void StopApplication(void);
@@ -60,6 +69,7 @@ private:
   void SendGetFileRequest(uint32_t fileId, uint32_t targetNodeIdx);
   void HandleGetFileRequest(ChordMessage msg);
   void SendGetFileResponse(uint32_t fileId, uint32_t targetId, bool hasFile);
+  void SendForwardingResponse(uint32_t fileId, uint32_t targetId, uint32_t forwardedToNodeId);
   void HandleGetFileResponse(ChordMessage msg);
 
   Ptr<Socket> m_socket;
