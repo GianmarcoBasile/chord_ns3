@@ -115,10 +115,18 @@ struct ChordInfo {
 };
 
 // Funzione per verificare se id è nell'intervallo (start, end) nel ring Chord
+// Nota: questa è l'unica implementazione che dovrebbe essere usata in tutto il codice
 inline bool isInRange(uint32_t id, uint32_t start, uint32_t end) {
+  // Se start == end, l'intervallo copre l'intero anello (caso di un solo nodo)
+  if (start == end) {
+    return true;
+  }
+  
   if (start < end) {
+    // Caso normale: intervallo senza wrap-around
     return (id > start && id <= end);
-  } else {  // L'intervallo attraversa lo zero
+  } else {  
+    // Caso con wrap-around: l'intervallo attraversa lo zero
     return (id > start || id <= end);
   }
 }

@@ -52,21 +52,13 @@ public:
   // Metodo per verificare se il nodo è responsabile per una chiave
   bool IsResponsibleForKey(uint32_t key);
   
-  // Metodi per trovare il nodo precedente più lontano
+  // Metodo per trovare il nodo precedente più lontano per il routing
   uint32_t FindFarthestPrecedingNode(uint32_t key);
-  uint32_t FindFarthestPrecedingNodeAlt(uint32_t key);
   
   // Metodo per registrare il callback per il completamento della ricerca di file
   void SetFileLookupCompletedCallback(FileLookupCompletedCallback callback);
 
-  // Metodo di supporto
-  bool isInRange(uint32_t id, uint32_t fromId, uint32_t toId) {
-    if (fromId < toId) {
-      return (id > fromId && id <= toId);
-    } else {
-      return (id > fromId || id <= toId);
-    }
-  }
+  // Nota: per verificare se un ID è in un intervallo, utilizzare la funzione globale isInRange definita in chord-header.h
 
 private:
   virtual void StartApplication(void);
@@ -107,11 +99,16 @@ private:
   vector<FileData> m_storedFiles;
   uint32_t m_totalFilesStored;
   uint32_t m_totalBytesStored;
+  
+  // Callback per il completamento della ricerca di file
+  FileLookupCompletedCallback m_fileLookupCompletedCallback;
+  
+  // Porta dell'applicazione
   uint16_t m_applicationPort;
   
-  // Nuovi membri per tenere traccia delle ricerche di file
-  map<uint32_t, bool> m_pendingFileLookups;  // Mappa degli ID file in attesa di risposta
-  FileLookupCompletedCallback m_fileLookupCompletedCallback;
+  // Mappa per tenere traccia dei nodi visitati durante il routing
+  // La chiave è l'ID del file, il valore è un set di ID dei nodi visitati
+  map<uint32_t, set<uint32_t>> m_visitedNodes;
 };
 
 #endif // CHORD_APPLICATION_H 
