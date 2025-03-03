@@ -82,19 +82,23 @@ void SetupChordNetwork(NodeContainer &nodes, vector<Ptr<ChordApplication>>& chor
       // Calcoliamo l'ID del j-esimo finger: (n + 2^j) mod 2^m
       uint32_t fingerID = (chordNodes[i].chordId + (1 << j)) % CHORD_SIZE;
       
-      // Troviamo il successore di questo ID
-      uint32_t successorIdx = i;
-      for (uint32_t k = 0; k < chordNodes.size(); ++k) {
-        uint32_t nextIdx = (i + k) % chordNodes.size();
-        if (chordNodes[nextIdx].chordId >= fingerID) {
-          successorIdx = nextIdx;
+      // Troviamo il primo nodo con ID >= fingerID
+      uint32_t successorIdx = 0;
+      bool found = false;
+      
+      // Prima cerchiamo nella parte "normale" dell'anello
+      for (uint32_t k = 0; k < chordNodes.size(); k++) {
+        if (chordNodes[k].chordId >= fingerID) {
+          successorIdx = k;
+          found = true;
           break;
         }
       }
       
-      // Se non abbiamo trovato un successore, prendiamo il primo nodo (wrap-around)
-      if (successorIdx == i && chordNodes[i].chordId >= fingerID) {
-        successorIdx = (i + 1) % chordNodes.size();
+      // Se non troviamo nulla, significa che dobbiamo fare il wrap-around
+      // e prendere il primo nodo dell'anello
+      if (!found) {
+        successorIdx = 0;  // Il primo nodo diventa il successore
       }
       
       chordNodes[i].fingerTable[j] = successorIdx;
@@ -111,11 +115,12 @@ void SetupChordNetwork(NodeContainer &nodes, vector<Ptr<ChordApplication>>& chor
          << " (chordId " << chordNodes[chordNodes[i].predecessor].chordId << ")" << endl;
     
     cout << "  Finger Table:" << endl;
-    for (uint32_t j = 0; j < min(FINGER_TABLE_SIZE, (uint32_t)5); ++j) {  // Mostriamo solo i primi 5 finger per brevità
+    for (uint32_t j = 0; j < FINGER_TABLE_SIZE; ++j) {  // Rimuovo il min() e mostro tutte le entries
       uint32_t fingerIdx = chordNodes[i].fingerTable[j];
       cout << "    Finger[" << j << "] (+" << (1 << j) << "): Nodo " 
            << chordNodes[fingerIdx].node->GetId()
-           << " (chordId " << chordNodes[fingerIdx].chordId << ")" << endl;
+           << " (chordId " << chordNodes[fingerIdx].chordId 
+           << ") - target: " << ((chordNodes[i].chordId + (1 << j)) % CHORD_SIZE) << endl;
     }
     cout << endl;
   }

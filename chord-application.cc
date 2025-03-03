@@ -7,6 +7,46 @@ using namespace std;
 
 NS_LOG_COMPONENT_DEFINE ("ChordApplication");
 
+// Funzioni di base per il routing Chord
+bool inInterval(int x, int current, int key, int modulus) {
+    // Se la chiave è minore del nodo corrente, dobbiamo fare wrap-around
+    if (key < current) {
+        return (x > current || x <= key);
+    }
+    // Caso normale: x deve essere tra il nodo corrente (escluso) e la chiave (inclusa)
+    return (x > current && x <= key);
+}
+
+int closestPrecedingFinger(int current, int key, const vector<int>& fingerTable, int modulus) {
+    // Se la chiave è minore del nodo corrente, dobbiamo fare wrap-around
+    bool needWrapAround = (key < current);
+    
+    // Iteriamo dalla fine della finger table (distanze più grandi)
+    for (int i = fingerTable.size() - 1; i >= 0; --i) {
+        int finger = fingerTable[i];
+        
+        // Ignoriamo il nodo corrente
+        if (finger == current) continue;
+        
+        if (needWrapAround) {
+            // Se abbiamo bisogno di wrap-around, cerchiamo:
+            // 1. Un nodo con ID minore della chiave, o
+            // 2. Un nodo con ID maggiore del nodo corrente
+            if (finger <= key || finger > current) {
+                return finger;
+            }
+        } else {
+            // Caso normale: cerchiamo un nodo tra il nodo corrente e la chiave
+            if (finger > current && finger <= key) {
+                return finger;
+            }
+        }
+    }
+    
+    // Se non troviamo nulla, restituiamo il successore immediato
+    return fingerTable[0];
+}
+
 TypeId 
 ChordApplication::GetTypeId(void) {
   static TypeId tid = TypeId("ChordApplication")
@@ -435,55 +475,95 @@ ChordApplication::HandleStoreFileResponse(ChordMessage msg) {
 // Metodo per cercare un file nella rete Chord
 void
 ChordApplication::GetFile(uint32_t fileId, uint32_t hopCount) {
-  cout << "RICERCA: Nodo " << m_chordId << " cerca file " << fileId << " (hop: " << hopCount << ")" << endl;
-  
-  // Verifica se il file è memorizzato localmente
-  for (const auto& file : m_storedFiles) {
-    if (file.fileId == fileId) {
-      cout << "RICERCA COMPLETATA: Nodo " << m_chordId << " ha trovato il file " << fileId << " localmente" << endl;
-      
-      // Chiamiamo il callback per notificare che la ricerca è completata con successo
-      if (m_fileLookupCompletedCallback) {
-        m_fileLookupCompletedCallback(fileId, true, hopCount);
-      }
-      return;
+    // Controllo anti-loop: se abbiamo superato il numero di nodi nella rete
+    if (hopCount >= m_chordNodes.size()) {
+        cout << "ERRORE: Rilevato possibile loop nel routing per file " << fileId 
+             << " dopo " << hopCount << " hop" << endl;
+        if (m_fileLookupCompletedCallback) {
+            m_fileLookupCompletedCallback(fileId, false, hopCount);
+        }
+        return;
     }
-  }
-  
-  // Se siamo responsabili per questa chiave ma non abbiamo il file, la ricerca fallisce
-  if (IsResponsibleForKey(fileId)) {
-    cout << "RICERCA COMPLETATA: Nodo " << m_chordId << " è responsabile per il file " << fileId 
-         << " ma non lo possiede. Ricerca fallita." << endl;
+
+    cout << "RICERCA: Nodo " << m_chordId << " cerca file " << fileId 
+         << " (hop: " << hopCount << ")" << endl;
     
-    // Chiamiamo il callback per notificare che la ricerca è fallita
-    if (m_fileLookupCompletedCallback) {
-      m_fileLookupCompletedCallback(fileId, false, hopCount);
+    // 1. Verifica se il file è memorizzato localmente
+    for (const auto& file : m_storedFiles) {
+        if (file.fileId == fileId) {
+            cout << "RICERCA COMPLETATA: Nodo " << m_chordId 
+                 << " ha trovato il file " << fileId << " localmente" << endl;
+            if (m_fileLookupCompletedCallback) {
+                m_fileLookupCompletedCallback(fileId, true, hopCount);
+            }
+            return;
+        }
     }
-    return;
-  }
-  
-  // Altrimenti, dobbiamo inoltrare la richiesta
-  // Utilizziamo il metodo alternativo per trovare il nodo a cui inoltrare
-  uint32_t nextIdx = FindFarthestPrecedingNodeAlt(fileId);
-  
-  if (nextIdx != m_myIndex) {
-    // Abbiamo trovato un nodo a cui inoltrare
-    uint32_t nextId = m_chordNodes[nextIdx].chordId;
-    cout << "RICERCA: Nodo " << m_chordId << " inoltra richiesta per file " << fileId 
-         << " al nodo " << nextId << endl;
     
-    // Invia la richiesta al nodo successivo
-    SendGetFileRequestWithHopCount(fileId, nextIdx, hopCount + 1);
-  } else {
-    // Non abbiamo trovato un nodo migliore, questo è un caso anomalo
-    cout << "ERRORE: Nodo " << m_chordId << " non ha trovato un nodo a cui inoltrare la richiesta per il file " 
-         << fileId << endl;
-    
-    // Chiamiamo il callback per notificare che la ricerca è fallita
-    if (m_fileLookupCompletedCallback) {
-      m_fileLookupCompletedCallback(fileId, false, hopCount);
+    // 2. Verifica se siamo responsabili per questa chiave
+    if (IsResponsibleForKey(fileId)) {
+        cout << "RICERCA COMPLETATA: Nodo " << m_chordId 
+             << " è responsabile per il file " << fileId 
+             << " ma non lo possiede. Ricerca fallita." << endl;
+        if (m_fileLookupCompletedCallback) {
+            m_fileLookupCompletedCallback(fileId, false, hopCount);
+        }
+        return;
     }
-  }
+    
+    // 3. Prepara la finger table per il routing
+    vector<int> fingerIds;
+    for (uint32_t idx : m_chordNodes[m_myIndex].fingerTable) {
+        fingerIds.push_back(static_cast<int>(m_chordNodes[idx].chordId));
+    }
+    
+    // 4. Trova il nodo più vicino alla chiave
+    int nextNodeId = closestPrecedingFinger(
+        static_cast<int>(m_chordId),
+        static_cast<int>(fileId),
+        fingerIds,
+        static_cast<int>(CHORD_SIZE)
+    );
+    
+    // 5. Trova l'indice del nodo successivo
+    uint32_t nextIdx = m_myIndex;  // Default al nostro indice
+    for (uint32_t i = 0; i < m_chordNodes.size(); i++) {
+        if (m_chordNodes[i].chordId == static_cast<uint32_t>(nextNodeId)) {
+            nextIdx = i;
+            break;
+        }
+    }
+    
+    // 6. Verifica se il routing è sensato
+    if (nextIdx != m_myIndex) {
+        uint32_t nextId = m_chordNodes[nextIdx].chordId;
+        
+        // Se la chiave è minore del nostro ID, dobbiamo andare a un nodo con ID minore
+        if (fileId < m_chordId && nextId > m_chordId) {
+            // Cerchiamo il nodo con ID più piccolo nella finger table
+            uint32_t smallestIdx = m_myIndex;
+            uint32_t smallestId = m_chordId;
+            for (uint32_t idx : m_chordNodes[m_myIndex].fingerTable) {
+                if (m_chordNodes[idx].chordId < smallestId) {
+                    smallestIdx = idx;
+                    smallestId = m_chordNodes[idx].chordId;
+                }
+            }
+            nextIdx = smallestIdx;
+            cout << "RICERCA: Nodo " << m_chordId << " corregge il routing verso il basso per nodo " 
+                 << m_chordNodes[nextIdx].chordId << endl;
+        }
+        
+        cout << "RICERCA: Nodo " << m_chordId << " inoltra richiesta al nodo " 
+             << m_chordNodes[nextIdx].chordId << endl;
+        SendForwardingRequest(fileId, nextIdx, m_chordId, hopCount + 1);
+    } else {
+        // Se non troviamo un nodo migliore, inoltriamo al successore
+        nextIdx = m_chordNodes[m_myIndex].fingerTable[0];
+        cout << "RICERCA: Nodo " << m_chordId << " inoltra al successore " 
+             << m_chordNodes[nextIdx].chordId << endl;
+        SendForwardingRequest(fileId, nextIdx, m_chordId, hopCount + 1);
+    }
 }
 
 // Metodo per gestire una richiesta di ricerca file
@@ -704,49 +784,6 @@ ChordApplication::SendGetFileRequestWithHopCount(uint32_t fileId, uint32_t targe
   m_socket->SendTo(packet, 0, InetSocketAddress(m_chordNodes[targetIdx].realIp, m_applicationPort));
 }
 
-// Metodo per trovare il nodo precedente più lontano dalla chiave
-uint32_t 
-ChordApplication::FindFarthestPrecedingNode(uint32_t key) {
-  // Implementazione modificata per cercare il nodo con ID massimo che è minore o uguale alla chiave
-  
-  // Se la finger table è vuota, restituiamo il nostro indice
-  if (m_chordNodes[m_myIndex].fingerTable.empty()) {
-    return m_myIndex;
-  }
-  
-  // Creiamo una lista di coppie (chordId, index) per i nodi nella finger table
-  vector<pair<uint32_t, uint32_t>> nodes;
-  for (uint32_t idx : m_chordNodes[m_myIndex].fingerTable) {
-    if (idx != m_myIndex) {  // Escludiamo noi stessi
-      nodes.push_back(make_pair(m_chordNodes[idx].chordId, idx));
-    }
-  }
-  
-  // Ordiniamo i nodi in ordine decrescente di ID
-  sort(nodes.begin(), nodes.end(), [](const auto& a, const auto& b) {
-    return a.first > b.first;
-  });
-  
-  // Troviamo il nodo con il massimo ID che è minore o uguale alla chiave
-  for (const auto& node : nodes) {
-    if (node.first <= key) {
-      cout << "RICERCA: Nodo " << m_chordId << " trova nodo precedente " << node.first 
-           << " per chiave " << key << endl;
-      return node.second;
-    }
-  }
-  
-  // Se non troviamo un nodo con ID minore o uguale alla chiave, prendiamo il nodo con ID massimo (wrap-around)
-  if (!nodes.empty()) {
-    cout << "RICERCA: Nodo " << m_chordId << " trova nodo precedente " << nodes[0].first 
-         << " per chiave " << key << " (wrap-around)" << endl;
-    return nodes[0].second;
-  }
-  
-  // Se non troviamo un nodo migliore, restituiamo il nostro indice
-  return m_myIndex;
-}
-
 // Metodo alternativo per trovare il nodo precedente più lontano dalla chiave
 uint32_t 
 ChordApplication::FindFarthestPrecedingNodeAlt(uint32_t key) {
@@ -818,30 +855,28 @@ ChordApplication::InitiateStoreFile(uint32_t fileId, uint32_t fileSize) {
 
 bool
 ChordApplication::IsResponsibleForKey(uint32_t key) {
-  // Se c'è un solo nodo nella rete, è responsabile per tutte le chiavi
-  if (m_chordNodes.size() == 1) {
-    return true;
-  }
-  
-  // Otteniamo l'indice del nostro successore immediato
-  uint32_t successorIdx = m_chordNodes[m_myIndex].fingerTable[0];
-  uint32_t successorId = m_chordNodes[successorIdx].chordId;
-  
-  // Se il nostro ID è uguale alla chiave, siamo responsabili
-  if (m_chordId == key) {
-    return true;
-  }
-  
-  // Se il nostro ID è minore del successore
-  if (m_chordId < successorId) {
-    // Siamo responsabili se la chiave è maggiore del nostro ID e minore o uguale all'ID del successore
-    return (key > m_chordId && key <= successorId);
-  } 
-  // Se il nostro ID è maggiore del successore (wrap-around)
-  else {
-    // Siamo responsabili se la chiave è maggiore del nostro ID o minore o uguale all'ID del successore
-    return (key > m_chordId || key <= successorId);
-  }
+    // Se c'è un solo nodo nella rete, è responsabile per tutte le chiavi
+    if (m_chordNodes.size() == 1) {
+        return true;
+    }
+    
+    // Otteniamo l'ID del nostro successore immediato
+    uint32_t successorIdx = m_chordNodes[m_myIndex].fingerTable[0];
+    uint32_t successorId = m_chordNodes[successorIdx].chordId;
+    
+    // Se il nostro ID è uguale alla chiave, siamo responsabili
+    if (m_chordId == key) {
+        return true;
+    }
+    
+    // Verifica se la chiave è nell'intervallo tra noi e il successore
+    if (m_chordId < successorId) {
+        // Caso senza wrap-around
+        return (key > m_chordId && key <= successorId);
+    } else {
+        // Caso con wrap-around
+        return (key > m_chordId || key <= successorId);
+    }
 }
 
 void
@@ -886,6 +921,41 @@ ChordApplication::HandleForwardingResponse(ChordMessage msg) {
   cout << "RICERCA: Nodo " << m_chordId << " ha ricevuto notifica che la richiesta per il file " 
        << fileId << " è stata inoltrata al nodo " << forwardedToNodeId 
        << " (hop: " << hopCount << ")" << endl;
+}
+
+// Metodo per trovare il nodo precedente più lontano dalla chiave
+uint32_t 
+ChordApplication::FindFarthestPrecedingNode(uint32_t key) {
+    // Se la finger table è vuota, restituiamo il nostro indice
+    if (m_chordNodes[m_myIndex].fingerTable.empty()) {
+        return m_myIndex;
+    }
+
+    // Convertiamo la finger table nel formato richiesto (vector<int>)
+    vector<int> fingerIds;
+    for (uint32_t idx : m_chordNodes[m_myIndex].fingerTable) {
+        fingerIds.push_back(static_cast<int>(m_chordNodes[idx].chordId));
+    }
+
+    // Chiamiamo il metodo richiesto
+    int result = closestPrecedingFinger(
+        static_cast<int>(m_chordId),
+        static_cast<int>(key),
+        fingerIds,
+        static_cast<int>(CHORD_SIZE)
+    );
+
+    // Troviamo l'indice del nodo con questo chordId
+    for (uint32_t i = 0; i < m_chordNodes.size(); i++) {
+        if (m_chordNodes[i].chordId == static_cast<uint32_t>(result)) {
+            cout << "RICERCA: Nodo " << m_chordId << " trova nodo precedente " << result 
+                 << " per chiave " << key << endl;
+            return i;
+        }
+    }
+
+    // Se non troviamo il nodo (non dovrebbe succedere), restituiamo il nostro successore
+    return m_chordNodes[m_myIndex].fingerTable[0];
 }
 
 

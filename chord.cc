@@ -23,6 +23,7 @@
 #include <iomanip>     // Per std::setprecision
 #include <filesystem>  // Per creare directory se necessario
 #include <unordered_set>
+#include <random>
 #include "chord-header.h"
 #include "chord-application.h"
 #include "chord-helper.h"
@@ -45,6 +46,25 @@ struct LookupStats {
 map<uint32_t, LookupStats> g_lookupStats;
 // Vettore per tenere traccia degli ID dei file inseriti
 vector<uint32_t> g_insertedFileIds;
+
+// Funzione per leggere gli ID dei file dal file
+vector<uint32_t> ReadFileIds(const string& filename) {
+    vector<uint32_t> fileIds;
+    ifstream file(filename);
+    if (!file.is_open()) {
+        cerr << "Errore nell'apertura del file " << filename << endl;
+        return fileIds;
+    }
+
+    uint32_t id;
+    while (file >> id) {
+        fileIds.push_back(id);
+    }
+
+    file.close();
+    cout << "Letti " << fileIds.size() << " ID di file da " << filename << endl;
+    return fileIds;
+}
 
 // Funzione per creare directory se non esistono
 void EnsureDirectoryExists(const string& dirPath) {
@@ -74,7 +94,10 @@ void FileLookupCompleted(uint32_t fileId, bool found, uint32_t hopCount) {
     if (found) {
       cout << "File trovato! Hop: " << hopCount << endl;
     } else {
-      cout << "File non trovato. Hop: " << hopCount << endl;
+      cout << "File non trovato dopo " << hopCount << " hop." << endl;
+      cout << "DETTAGLIO ERRORE: La ricerca del file " << fileId << " è fallita." << endl;
+      cout << "Questo non dovrebbe accadere in una rete Chord correttamente funzionante." << endl;
+      cout << "Il file dovrebbe essere stato inserito all'inizio della simulazione." << endl;
     }
   }
 }
@@ -163,16 +186,33 @@ void SaveLookupStatsToCsv() {
   cout << "Riepilogo delle ricerche salvato in: " << summaryPath << endl;
 }
 
+// Funzione per generare chiavi casuali uniche
+vector<uint32_t> GenerateUniqueKeys(uint32_t numKeys, uint32_t maxKey) {
+    vector<uint32_t> keys;
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<uint32_t> dis(1, maxKey);
+    
+    while (keys.size() < numKeys) {
+        uint32_t key = dis(gen);
+        if (find(keys.begin(), keys.end(), key) == keys.end()) {
+            keys.push_back(key);
+        }
+    }
+    
+    return keys;
+}
+
 int main (int argc, char *argv[])
 { 
   // Numero di nodi nella rete Chord
   uint32_t numnodes = 1000;
   // Numero di file da inserire
-  uint32_t numFiles = 500;
+  uint32_t numFiles = 100;  // Fissiamo a 100 file
   // Numero di file da cercare
-  uint32_t numLookups = 1;
+  uint32_t numLookups = 100;  // Cercheremo tutti i file inseriti
   // Seed per generatore di numeri casuali
-  uint32_t seed = 9;
+  uint32_t seed = 19;
   uint32_t run = 1000;
   // Tempo di attesa tra l'inserimento dei file e l'inizio delle ricerche (secondi)
   uint32_t waitBeforeLookup = 5;
@@ -199,6 +239,10 @@ int main (int argc, char *argv[])
   
   cout << "Inizializzazione simulazione Chord con " << numnodes << " nodi" << endl;
   cout << "Verranno inseriti " << numFiles << " file e cercati " << numLookups << " file" << endl;
+
+  // Generiamo 100 chiavi uniche tra 1 e 10000
+  vector<uint32_t> fileIds = GenerateUniqueKeys(100, 10000);
+  cout << "Generate " << fileIds.size() << " chiavi uniche per i file" << endl;
 
   NodeContainer nodes;
   nodes.Create (numnodes);
@@ -255,168 +299,111 @@ int main (int argc, char *argv[])
     app->SetFileLookupCompletedCallback(&FileLookupCompleted);
   }
   
-  // Generiamo numFiles file casuali e li memorizziamo nella rete
-  Ptr<UniformRandomVariable> r = CreateObject<UniformRandomVariable>();
+  // Fase di inserimento dei file
+  double insertStartTime = 10.0;
+  double insertInterval = 0.05;
   
-  cout << "Inserimento di " << numFiles << " file nella rete Chord..." << endl;
-  
-  // Creiamo un set per assicurarci che gli ID dei file siano tutti univoci
-  unordered_set<uint32_t> uniqueFileIds;
-  
-  // Tempo di inizio per l'inserimento dei file
-  double insertStartTime = 20.0;
-  // Intervallo tra inserimenti di file
-  double insertInterval = 0.05; // Aumentato da 0.01 a 0.05 per dare più tempo
-  
-  // Aggiungo un messaggio per indicare l'inizio della fase di inserimento
   Simulator::Schedule(Seconds(insertStartTime), []() {
     cout << "\n=== INIZIO FASE DI INSERIMENTO FILE ===" << endl;
   });
   
-  for (uint32_t i = 0; i < numFiles; i++) {
-    // Genera un ID univoco
-    uint32_t fileId;
-    do {
-      fileId = r->GetInteger(0, CHORD_SIZE - 1);
-    } while (uniqueFileIds.find(fileId) != uniqueFileIds.end());
-    
-    uniqueFileIds.insert(fileId);
-    g_insertedFileIds.push_back(fileId);  // Salviamo l'ID per la ricerca successiva
-    
-    // Scegliamo un nodo casuale da cui iniziare l'inserimento
+  // Inseriamo ogni file da un nodo casuale
+  Ptr<UniformRandomVariable> r = CreateObject<UniformRandomVariable>();
+  for (uint32_t i = 0; i < fileIds.size(); i++) {
+    uint32_t fileId = fileIds[i];
     uint32_t startNodeIdx = r->GetInteger(0, chordApps.size() - 1);
     
-    // Pianifichiamo l'inserimento del file
-    Simulator::Schedule(Seconds(insertStartTime + i * insertInterval), &ChordApplication::StoreFile, 
-                      chordApps[startNodeIdx], fileId, 1024, 0);
+    Simulator::Schedule(Seconds(insertStartTime + i * insertInterval), 
+                       &ChordApplication::StoreFile, 
+                       chordApps[startNodeIdx], 
+                       fileId, 
+                       1024,  // dimensione fissa di 1KB
+                       0);    // hop count iniziale
     
-    if (i % 50 == 0) {
-      cout << "Pianificato inserimento file " << i << "/" << numFiles << endl;
+    if (i % 10 == 0) {
+      cout << "Pianificato inserimento file " << i << "/" << fileIds.size() << endl;
     }
   }
   
-  // Tempo totale necessario per l'inserimento di tutti i file
-  double totalInsertTime = insertStartTime + numFiles * insertInterval;
+  double totalInsertTime = insertStartTime + fileIds.size() * insertInterval;
   
-  // Aggiungiamo un callback per verificare quanti file sono stati effettivamente inseriti
-  Simulator::Schedule(Seconds(totalInsertTime + 5.0), [&chordApps]() {
+  // Verifica dei file inseriti
+  Simulator::Schedule(Seconds(totalInsertTime + 1.0), [&chordApps]() {
     cout << "\n=== VERIFICA INSERIMENTO FILE ===" << endl;
     uint32_t totalFiles = 0;
-    
-    // Contiamo quanti file sono presenti in ciascun nodo
     for (uint32_t i = 0; i < chordApps.size(); i++) {
       vector<uint32_t> files = chordApps[i]->GetStoredFiles();
       totalFiles += files.size();
-      
-      // Stampiamo dettagli solo per alcuni nodi per evitare output eccessivo
       if (i % 100 == 0) {
         cout << "Nodo " << i << " (chordId: " << chordApps[i]->GetChordId() 
              << ") ha " << files.size() << " file" << endl;
       }
     }
-    
     cout << "Totale file memorizzati nella rete: " << totalFiles << endl;
-    cout << "==============================\n" << endl;
   });
   
-  // Scegliamo un nodo casuale da cui effettuare le ricerche
+  // Fase di ricerca dei file
+  double lookupStartTime = totalInsertTime + waitBeforeLookup;
+  double lookupInterval = 0.5;
+  
   uint32_t lookupNodeIdx = r->GetInteger(0, chordApps.size() - 1);
   cout << "Nodo scelto per le ricerche: chordId " << chordApps[lookupNodeIdx]->GetChordId() << endl;
   
-  // Pianifichiamo le ricerche DOPO un tempo di attesa adeguato
-  cout << "Pianificazione di " << numLookups << " ricerche su file esistenti..." << endl;
-  
-  // Tempo di inizio per le ricerche (dopo l'inserimento dei file + tempo di attesa)
-  double lookupStartTime = totalInsertTime + waitBeforeLookup;
-  // Intervallo tra ricerche
-  double lookupInterval = 0.5; // Aumentato da 0.1 a 0.5 per dare più tempo tra le ricerche
-  
-  // Assicuriamoci di avere abbastanza file
-  if (g_insertedFileIds.size() < numLookups) {
-    cout << "ERRORE: Non ci sono abbastanza file inseriti per " << numLookups << " ricerche" << endl;
-    return 1;
-  }
-  
-  cout << "Le ricerche inizieranno a " << lookupStartTime << " secondi dall'inizio della simulazione" << endl;
-  cout << "Ovvero " << waitBeforeLookup << " secondi dopo il completamento dell'inserimento dei file" << endl;
-  
-  // Aggiungo un messaggio per indicare l'inizio della fase di ricerca
   Simulator::Schedule(Seconds(lookupStartTime), []() {
     cout << "\n=== INIZIO FASE DI RICERCA FILE ===" << endl;
-    cout << "Attesa di 5 secondi completata dopo la fase di inserimento" << endl;
   });
   
-  for (uint32_t i = 0; i < numLookups; i++) {
-    // Utilizziamo i primi 100 file che abbiamo sicuramente inserito
-    uint32_t fileId = g_insertedFileIds[i];
+  // Cerchiamo tutti i file che abbiamo inserito
+  for (uint32_t i = 0; i < fileIds.size(); i++) {
+    uint32_t fileId = fileIds[i];
     
-    // Inizializziamo le statistiche di ricerca
     LookupStats stats;
     stats.fileId = fileId;
     stats.startTime = Seconds(lookupStartTime + i * lookupInterval);
-    stats.endTime = stats.startTime;  // Verrà aggiornato quando la ricerca è completata
+    stats.endTime = stats.startTime;
     stats.completed = false;
-    stats.hopCount = 0;  // Inizialmente non conosciamo il numero di hop
+    stats.hopCount = 0;
     g_lookupStats[fileId] = stats;
     
-    // Pianifichiamo la ricerca
     Simulator::Schedule(stats.startTime, [lookupNodeIdx, fileId, chordApps]() {
-      cout << "RICERCA: Nodo " << chordApps[lookupNodeIdx]->GetChordId() << " inizia la ricerca del file " << fileId << endl;
+      cout << "RICERCA: Nodo " << chordApps[lookupNodeIdx]->GetChordId() 
+           << " inizia la ricerca del file " << fileId << endl;
       chordApps[lookupNodeIdx]->GetFile(fileId, 0);
     });
-    
-    if (i % 10 == 0) {
-      cout << "Pianificata ricerca " << i << "/" << numLookups << endl;
-    }
   }
   
-  // Pianifichiamo il salvataggio dei risultati al termine delle ricerche
-  Simulator::Schedule(Seconds(lookupStartTime + numLookups * lookupInterval + 10.0), 
-                     &SaveLookupStatsToCsv);
-  
-  // Aggiungiamo un callback per stampare le statistiche complessive alla fine della simulazione
-  Simulator::Schedule(Seconds(lookupStartTime + numLookups * lookupInterval + 15.0), []() {
-    cout << "\n\n=== STATISTICHE COMPLESSIVE DELLA SIMULAZIONE CHORD ===" << endl;
+  // Statistiche finali
+  Simulator::Schedule(Seconds(lookupStartTime + fileIds.size() * lookupInterval + 5.0), []() {
+    cout << "\n=== STATISTICHE FINALI ===" << endl;
     
-    // Calcola statistiche aggregate
-    double totalTime = 0.0;
-    double minTime = numeric_limits<double>::max();
-    double maxTime = 0.0;
-    int successCount = 0;
+    uint32_t successCount = 0;
     uint32_t totalHops = 0;
-    uint32_t minHops = numeric_limits<uint32_t>::max();
-    uint32_t maxHops = 0;
+    vector<uint32_t> failedLookups;
     
     for (const auto& entry : g_lookupStats) {
-      double elapsedTimeMs = (entry.second.endTime - entry.second.startTime).GetMilliSeconds();
-      totalTime += elapsedTimeMs;
-      minTime = min(minTime, elapsedTimeMs);
-      maxTime = max(maxTime, elapsedTimeMs);
-      
-      totalHops += entry.second.hopCount;
-      minHops = min(minHops, entry.second.hopCount);
-      maxHops = max(maxHops, entry.second.hopCount);
-      
-      if (entry.second.completed) successCount++;
+      if (entry.second.completed) {
+        successCount++;
+        totalHops += entry.second.hopCount;
+      } else {
+        failedLookups.push_back(entry.first);
+      }
     }
     
-    double avgTime = totalTime / g_lookupStats.size();
-    double successRate = (double)successCount / g_lookupStats.size() * 100.0;
-    double avgHops = (double)totalHops / g_lookupStats.size();
-    
-    cout << "Ricerche totali: " << g_lookupStats.size() << endl;
-    cout << "Ricerche completate con successo: " << successCount << endl;
-    cout << "Tasso di successo: " << fixed << setprecision(2) << successRate << "%" << endl;
-    cout << "Tempo totale di ricerca: " << fixed << setprecision(2) << totalTime << " ms" << endl;
-    cout << "Tempo medio di ricerca: " << fixed << setprecision(2) << avgTime << " ms" << endl;
-    cout << "Tempo minimo di ricerca: " << fixed << setprecision(2) << minTime << " ms" << endl;
-    cout << "Tempo massimo di ricerca: " << fixed << setprecision(2) << maxTime << " ms" << endl;
-    cout << "Numero totale di hop: " << totalHops << endl;
-    cout << "Numero medio di hop: " << fixed << setprecision(2) << avgHops << endl;
-    cout << "Numero minimo di hop: " << minHops << endl;
-    cout << "Numero massimo di hop: " << maxHops << endl;
-    cout << "======================================================\n" << endl;
+    cout << "Ricerche completate con successo: " << successCount << "/" 
+         << g_lookupStats.size() << endl;
+    if (!failedLookups.empty()) {
+      cout << "File non trovati:" << endl;
+      for (uint32_t fileId : failedLookups) {
+        cout << "  - FileID: " << fileId << endl;
+      }
+    }
+    cout << "Media hop per ricerca: " 
+         << (double)totalHops / successCount << endl;
   });
+  
+  // Pianifichiamo il salvataggio dei risultati al termine delle ricerche
+  Simulator::Schedule(Seconds(lookupStartTime + fileIds.size() * lookupInterval + 10.0), 
+                     &SaveLookupStatsToCsv);
   
   cout << "Avvio simulazione..." << endl;
   Simulator::Run();
