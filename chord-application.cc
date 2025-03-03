@@ -9,18 +9,19 @@ NS_LOG_COMPONENT_DEFINE ("ChordApplication");
 
 // Funzioni di base per il routing Chord
 bool inInterval(int x, int current, int key, int modulus) {
+    if (current == key) return false;
+    
     // Se la chiave è minore del nodo corrente, dobbiamo fare wrap-around
     if (key < current) {
+        // x deve essere o maggiore del nodo corrente o minore/uguale alla chiave
         return (x > current || x <= key);
+    } else {
+        // Caso normale: x deve essere tra il nodo corrente e la chiave
+        return (x > current && x <= key);
     }
-    // Caso normale: x deve essere tra il nodo corrente (escluso) e la chiave (inclusa)
-    return (x > current && x <= key);
 }
 
 int closestPrecedingFinger(int current, int key, const vector<int>& fingerTable, int modulus) {
-    // Se la chiave è minore del nodo corrente, dobbiamo fare wrap-around
-    bool needWrapAround = (key < current);
-    
     // Iteriamo dalla fine della finger table (distanze più grandi)
     for (int i = fingerTable.size() - 1; i >= 0; --i) {
         int finger = fingerTable[i];
@@ -28,23 +29,29 @@ int closestPrecedingFinger(int current, int key, const vector<int>& fingerTable,
         // Ignoriamo il nodo corrente
         if (finger == current) continue;
         
-        if (needWrapAround) {
-            // Se abbiamo bisogno di wrap-around, cerchiamo:
-            // 1. Un nodo con ID minore della chiave, o
-            // 2. Un nodo con ID maggiore del nodo corrente
-            if (finger <= key || finger > current) {
+        // Caso di wrap-around: key < current
+        if (key < current) {
+            // Cerchiamo un nodo che sia:
+            // 1. Maggiore del nodo corrente (per andare in avanti nella circonferenza) OPPURE
+            // 2. Minore o uguale alla chiave (per il wrap-around)
+            if (finger > current || finger <= key) {
                 return finger;
             }
-        } else {
-            // Caso normale: cerchiamo un nodo tra il nodo corrente e la chiave
+        }
+        // Caso normale: key > current
+        else {
+            // Cerchiamo un nodo che sia:
+            // 1. Maggiore del nodo corrente E
+            // 2. Minore o uguale alla chiave
             if (finger > current && finger <= key) {
                 return finger;
             }
         }
     }
     
-    // Se non troviamo nulla, restituiamo il successore immediato
-    return fingerTable[0];
+    // Se non troviamo un nodo adatto nella finger table,
+    // restituiamo il nodo corrente
+    return current;
 }
 
 TypeId 

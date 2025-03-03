@@ -10,21 +10,31 @@ using namespace std;
 
 // Funzione per trovare il successore di un ID nella rete Chord
 uint32_t findSuccessor(uint32_t id, const vector<ChordInfo>& chordNodes) {
-  // Caso base: un solo nodo
-  if (chordNodes.size() == 1) {
-    return 0;
-  }
-  
-  // Cerchiamo il primo nodo con ID >= id
-  for (uint32_t i = 0; i < chordNodes.size(); i++) {
-    uint32_t nextIdx = (i + 1) % chordNodes.size();
-    if (isInRange(id, chordNodes[i].chordId, chordNodes[nextIdx].chordId)) {
-      return nextIdx;
+    // Caso base: un solo nodo
+    if (chordNodes.size() == 1) {
+        return 0;
     }
-  }
-  
-  // Se non troviamo nulla, restituiamo il primo nodo
-  return 0;
+    
+    // Primo tentativo: cerchiamo il primo nodo con ID >= id
+    for (uint32_t i = 0; i < chordNodes.size(); i++) {
+        if (chordNodes[i].chordId >= id) {
+            return i;
+        }
+    }
+    
+    // Se non troviamo nessun nodo con ID >= id, significa che dobbiamo fare wrap-around
+    // Quindi restituiamo il nodo con l'ID più piccolo
+    uint32_t minIdx = 0;
+    uint32_t minId = chordNodes[0].chordId;
+    
+    for (uint32_t i = 1; i < chordNodes.size(); i++) {
+        if (chordNodes[i].chordId < minId) {
+            minId = chordNodes[i].chordId;
+            minIdx = i;
+        }
+    }
+    
+    return minIdx;
 }
 
 // Funzione per configurare la rete Chord e costruire le tabelle di routing
@@ -82,25 +92,8 @@ void SetupChordNetwork(NodeContainer &nodes, vector<Ptr<ChordApplication>>& chor
       // Calcoliamo l'ID del j-esimo finger: (n + 2^j) mod 2^m
       uint32_t fingerID = (chordNodes[i].chordId + (1 << j)) % CHORD_SIZE;
       
-      // Troviamo il primo nodo con ID >= fingerID
-      uint32_t successorIdx = 0;
-      bool found = false;
-      
-      // Prima cerchiamo nella parte "normale" dell'anello
-      for (uint32_t k = 0; k < chordNodes.size(); k++) {
-        if (chordNodes[k].chordId >= fingerID) {
-          successorIdx = k;
-          found = true;
-          break;
-        }
-      }
-      
-      // Se non troviamo nulla, significa che dobbiamo fare il wrap-around
-      // e prendere il primo nodo dell'anello
-      if (!found) {
-        successorIdx = 0;  // Il primo nodo diventa il successore
-      }
-      
+      // Troviamo il successore di questo ID usando la funzione findSuccessor
+      uint32_t successorIdx = findSuccessor(fingerID, chordNodes);
       chordNodes[i].fingerTable[j] = successorIdx;
     }
   }

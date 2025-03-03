@@ -212,7 +212,7 @@ int main (int argc, char *argv[])
   // Numero di file da cercare
   uint32_t numLookups = 100;  // Cercheremo tutti i file inseriti
   // Seed per generatore di numeri casuali
-  uint32_t seed = 19;
+  uint32_t seed = 9;
   uint32_t run = 1000;
   // Tempo di attesa tra l'inserimento dei file e l'inizio delle ricerche (secondi)
   uint32_t waitBeforeLookup = 5;
