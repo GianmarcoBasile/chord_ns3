@@ -917,18 +917,20 @@ ChordApplication::IsResponsibleForKey(uint32_t key) {
         return true;
     }
     
-    // Otteniamo l'ID del nostro successore immediato
-    uint32_t successorIdx = m_chordNodes[m_myIndex].fingerTable[0];
-    uint32_t successorId = m_chordNodes[successorIdx].chordId;
+    // Otteniamo l'ID del nostro predecessore
+    uint32_t predecessorIdx = m_chordNodes[m_myIndex].predecessor;
+    uint32_t predecessorId = m_chordNodes[predecessorIdx].chordId;
     
     // Se il nostro ID è uguale alla chiave, siamo responsabili
     if (m_chordId == key) {
         return true;
     }
     
+    // Secondo la specifica di Chord, un nodo è responsabile per le chiavi che sono
+    // maggiori dell'ID del suo predecessore e minori o uguali al suo ID
     // Utilizziamo la funzione globale isInRange per verificare se la chiave è nell'intervallo
-    // tra noi (escluso) e il successore (incluso)
-    return isInRange(key, m_chordId, successorId);
+    // tra il predecessore (escluso) e noi (incluso)
+    return isInRange(key, predecessorId, m_chordId);
 }
 
 void

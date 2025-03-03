@@ -114,7 +114,7 @@ struct ChordInfo {
   vector<uint32_t> fileIds;      // Lista degli ID dei file memorizzati dal nodo
 };
 
-// Funzione per verificare se id è nell'intervallo (start, end) nel ring Chord
+// Funzione per verificare se id è nell'intervallo (start, end] nel ring Chord
 // Nota: questa è l'unica implementazione che dovrebbe essere usata in tutto il codice
 inline bool isInRange(uint32_t id, uint32_t start, uint32_t end) {
   // Se start == end, l'intervallo copre l'intero anello (caso di un solo nodo)
