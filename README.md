@@ -66,10 +66,6 @@ Parametri disponibili:
 - `--seed`: Seed per il generatore di numeri casuali (default: 1)
 - `--csv`: Nome del file CSV in cui salvare le statistiche (default: "chord_stats.csv")
 
-  ```
-
-  ```
-
 ## Output e statistiche
 
 ### Output a console
