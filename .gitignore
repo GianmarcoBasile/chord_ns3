@@ -1,3 +1,4 @@
 *.csv
 *.log
 .vscode
+chord_results
